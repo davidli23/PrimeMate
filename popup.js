@@ -1,9 +1,8 @@
-document.addEventListener("DOMContentLoaded", function() {
-	var Button = document.getElementById('button');
-	Button.addEventListener('click', onClick();
-});
+$("#start_button")[0].addEventListener('click', onClick);
 
+// Start button in popup
 function onClick() {
-	window.close();
-	window.open("inputs.html", "_blank", "height=600,width=850,top=-100");
+	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+			chrome.tabs.sendMessage(tabs[0].id, {message: "start"});
+	});
 }
