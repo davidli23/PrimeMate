@@ -8,7 +8,6 @@ chrome.runtime.onMessage.addListener(function(request) {
 function run() {
   // exons is wrapped set of each exon element
   let exons = $(".bg2 .text_sequence.exon_sequence");
-  console.log(exons);
 }
 
 // TODO: determines if current site is ensembl site with exons
