@@ -8,10 +8,16 @@ chrome.runtime.onMessage.addListener(function(request) {
 function run() {
   // exons is wrapped set of each exon element
   let exons = $(".bg2 .text_sequence.exon_sequence");
-  console.log(exons);
+  // Array of exon strings
+  let exonsText = [];
+  exons.each(function() {
+    exonsText.push(this.textContent);
+  })
+  chrome.runtime.sendMessage({message: "calculate", exons: exonsText});
 }
 
-// TODO: determines if current site is ensembl site with exons
+// TODO
+// Determines if current site is ensembl site with exons
 function isValidSite() {
   return true;
 }
