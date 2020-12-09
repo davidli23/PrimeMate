@@ -150,7 +150,7 @@ function bestPrimerPair(exons, exonInd, fLeft) {
   return bestPrimerPair;
 }
 
-// TODO: Check if primer pair is self-complimentary or a hairpin
-function validPrimerPair() {
+// TODO: Check if primer pair is self-complementary or a hairpin
+function validPrimerPair(fPrimer, rPrimer) {
   return true;
 }

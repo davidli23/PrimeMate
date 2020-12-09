@@ -10,13 +10,22 @@ chrome.runtime.sendMessage({message: "get exons"}, function(response) {
 
 function updatePage() {
   exons.forEach(function(exon, exonInd) {
-    let exonElement = $("<p class=exon></p>");
+    let parity = 'even_row';
+    if (exonInd%2 == 1) {
+      parity = 'odd_row';
+    }
+    let exonElement = $("<td class='exon'></td>");
     exonElement.attr("id", "exon"+(exonInd+1).toString());
     exonElement.append($("<span class=pre_text></span>"));
     exonElement.append($("<span class=mid_text></span>"));
     exonElement.append($("<span class=post_text></span>"));
     exonElement.find(".pre_text").text(exon);
-    $(".exons_text").append(exonElement);
+
+    let exonRow = $("<tr class='exon_row "+parity+"'></tr>");
+    exonRow.attr("id", "exon_row"+(exonInd+1).toString());
+    exonRow.append($("<td style='width:60px'>Exon "+(exonInd+1).toString()+"</td>"));
+    exonRow.append(exonElement);
+    $(".exon_table").append(exonRow);
   });
 
   for (let i = 0; i < 10; i++) {

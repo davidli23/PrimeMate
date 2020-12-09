@@ -2,14 +2,29 @@
   font-size: 14px;
 }
 
+.exon_table {
+  width: 100%;
+  table-layout: fixed;
+  border-spacing: 0px;
+}
+
 .primer_pair {
   cursor: pointer;
 }
 
-p {
-  word-wrap: break-word;
-}
-
 .mid_text {
   background-color: #FFFF00;
+}
+
+.even_row {
+  background-color: #ffffff;
+}
+
+.odd_row {
+  background-color: #e6e6e6;
+}
+
+td {
+  vertical-align: top;
+  word-wrap:break-word
 }
