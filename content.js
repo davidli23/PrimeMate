@@ -1,6 +1,6 @@
 // Event listener for popup start button click
 chrome.runtime.onMessage.addListener(function(request) {
-  if (request.message === "start") {
+  if (request.message == "start") {
     run();
   }
 });
@@ -16,11 +16,10 @@ function run() {
 
   tempExons = ["", "TAAAAAAGCTGAGTGAAGACAGTTTGA", "CTAAGCAGCCTGAAGAAGTTTTTGATGTACTGGAG"]
 
-  chrome.runtime.sendMessage({message: "calculate", exons: exonsText});
+  chrome.runtime.sendMessage({message: "send exons", exons: exonsText});
 }
 
-// TODO
-// Determines if current site is ensembl site with exons
+// TODO: Determines if current site is ensembl site with exons
 function isValidSite() {
   return true;
 }
