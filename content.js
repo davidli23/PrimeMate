@@ -11,8 +11,11 @@ function run() {
   // Array of exon strings
   let exonsText = [];
   exons.each(function() {
-    exonsText.push(this.textContent);
+    exonsText.push(this.textContent.trim().replace(/(\r\n|\n|\r)/gm, ""));
   })
+
+  tempExons = ["", "TAAAAAAGCTGAGTGAAGACAGTTTGA", "CTAAGCAGCCTGAAGAAGTTTTTGATGTACTGGAG"]
+
   chrome.runtime.sendMessage({message: "calculate", exons: exonsText});
 }
 
