@@ -5,6 +5,7 @@ var selectedPrimer = -1;
 chrome.runtime.sendMessage({message: "get exons"}, function(response) {
   exons = response.exons;
   primerPairs = calculate(response.exons);
+  console.log(primerPairs);
   updatePage();
 });
 
@@ -44,6 +45,7 @@ function showPrimer(primerPair, index) {
 }
 
 function highlightPrimerPair(primerPair, primerIndex) {
+  console.log(primerPair);
   if (selectedPrimer != primerIndex) {
     if (selectedPrimer >= 0) {
       let selectedExon = primerPairs[selectedPrimer].exon;

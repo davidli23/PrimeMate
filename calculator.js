@@ -1,29 +1,47 @@
-var minLen = 18;
-var maxLen = 24;
-var minDist = 30;
-var maxDist = 90;
-var NaConc = 0.05;
-var weights = {
+const minLen = 18;
+const maxLen = 24;
+const minDist = 30;
+const maxDist = 90;
+const NaConc = 0.05;
+const weights = {
   tempDiff: 20,
   indMeltTemp: 20,
   indGCContent: 20,
   dist: 20,
   startGC: 20
 };
+const dimerThresh = 5;
 
-var primerPairs;
-var exons;
-
-function purity(value, ideal, bound) {
-  SD = bound / 2
-  return Math.exp(-0.5*Math.pow((value-ideal)/SD, 2));
+// Finds all potential pairs of primers and corresponding
+// properties and scores
+function calculate(exons) {
+  // 2D array of potential primer pairs
+  let primerPairs = [];
+  // Loop through each exon
+  exons.forEach(function (exon, exonInd) {
+    // Check if first or last exon
+    if (1 <= exonInd && exonInd < exons.length - 1) {
+      // Loop through each starting index, taking the best pair with that starting index
+      for (let fLeft = Math.max(0, exon.length - maxDist - maxLen); fLeft <= exon.length - minLen; fLeft++) {
+        let primerPair = bestPrimerPair(exons, exonInd, fLeft);
+        if (primerPair != null) {
+          primerPairs.push(primerPair);
+        }
+      }
+    }
+  });
+  primerPairs.sort(function(p1, p2) {
+    return p2.score - p1.score;
+  });
+  return primerPairs;
 }
 
 class PrimerPair {
   constructor(exons, exonInd, fLeft, fRight, rLeft, rRight) {
     this.exon = exonInd + 1;
     this.fPrimer = exons[exonInd].substring(fLeft, fRight);
-    this.rPrimer = exons[exonInd+1].substring(rLeft, rRight);
+    this.rPrimerOriginal = exons[exonInd+1].substring(rLeft, rRight);
+    this.rPrimer = reverseComplement(this.rPrimerOriginal);
     this.fGCATContent = this.GCATContent(this.fPrimer);
     this.rGCATContent = this.GCATContent(this.rPrimer);
     this.fInd = fLeft;
@@ -103,28 +121,9 @@ class PrimerPair {
   }
 }
 
-
-
-// Finds all potential pairs of primers and corresponding
-// properties and scores
-function calculate(exons) {
-  // 2D array of potential primer pairs
-  let primerPairs = [];
-  // Loop through each exon
-  exons.forEach(function (exon, exonInd) {
-    // Check if first or last exon
-    if (1 <= exonInd && exonInd < exons.length - 1) {
-      // Loop through each starting index, taking the best pair with that starting index
-      for (let fLeft = Math.max(0, exon.length - maxDist - maxLen); fLeft <= exon.length - minLen; fLeft++) {
-        let primerPair = bestPrimerPair(exons, exonInd, fLeft);
-        primerPairs.push(primerPair);
-      }
-    }
-  });
-  primerPairs.sort(function(p1, p2) {
-    return p2.score - p1.score;
-  })
-  return primerPairs;
+function purity(value, ideal, bound) {
+  SD = bound / 2
+  return Math.exp(-0.5*Math.pow((value-ideal)/SD, 2));
 }
 
 function bestPrimerPair(exons, exonInd, fLeft) {
@@ -133,15 +132,19 @@ function bestPrimerPair(exons, exonInd, fLeft) {
 
   // Loop through each possible primer pair
   for (let fRight = fLeft + minLen; fRight <= Math.min(exons[exonInd].length, fLeft + maxLen); fRight++) {
-    for (let rLeft = Math.max(0, minDist - (exons[exonInd].length - fRight)); rLeft < Math.min(exons[exonInd+1].length - minLen, maxDist - (exons[exonInd].length - fRight) + 1); rLeft++) {
-      for (let rRight = rLeft + minLen; rRight <= Math.min(exons[exonInd+1].length, rLeft + maxLen); rRight++) {
-        let fPrimer = exons[exonInd].substring(fLeft, fRight);
-        let rPrimer = exons[exonInd+1].substring(rLeft, rRight);
-        if (validPrimerPair(fPrimer, rPrimer)) {
-          let primerPair = new PrimerPair(exons, exonInd, fLeft, fRight, rLeft, rRight);
-          if (primerPair.score > bestScore) {
-            bestPrimerPair = primerPair;
-            bestScore = primerPair.score;
+    let fPrimer = exons[exonInd].substring(fLeft, fRight);
+    if (!hasHairpin(fPrimer)) {
+      for (let rLeft = Math.max(0, minDist - (exons[exonInd].length - fRight)); rLeft < Math.min(exons[exonInd+1].length - minLen, maxDist - (exons[exonInd].length - fRight) + 1); rLeft++) {
+        for (let rRight = rLeft + minLen; rRight <= Math.min(exons[exonInd+1].length, rLeft + maxLen); rRight++) {
+          let rPrimer = reverseComplement(exons[exonInd+1].substring(rLeft, rRight));
+          if (!hasHairpin(rPrimer)) {
+            if (!isSelfDimer(fPrimer, rPrimer)) {
+              let primerPair = new PrimerPair(exons, exonInd, fLeft, fRight, rLeft, rRight);
+              if (primerPair.score > bestScore) {
+                bestPrimerPair = primerPair;
+                bestScore = primerPair.score;
+              }
+            }
           }
         }
       }
@@ -150,7 +153,67 @@ function bestPrimerPair(exons, exonInd, fLeft) {
   return bestPrimerPair;
 }
 
-// TODO: Check if primer pair is self-complementary or a hairpin
-function validPrimerPair(fPrimer, rPrimer) {
-  return true;
+function reverseComplement(primer) {
+  let arr = new Array(primer.length)
+  for (let i = 0; i < primer.length; i++) {
+    switch(primer.substring(i, i+1)) {
+      case "C":
+        arr[primer.length - 1 - i] = "G";
+        break;
+      case "G":
+        arr[primer.length - 1 - i] = "C";
+        break;
+      case "A":
+        arr[primer.length - 1 - i] = "T";
+        break;
+      case "T":
+        arr[primer.length - 1 - i] = "A";
+        break;
+    }
+  }
+  return arr.join("");
+}
+
+function complementary(b1, b2) {
+  return (b1=="C"&&b2=="G")||(b1=="G"&&b2=="C")||(b1=="A"&&b2=="T")||(b1=="T"&&b2=="A");
+}
+
+function isSelfDimer(fPrimer, rPrimer) {
+  return false;
+  for (let lInd = 0; lInd <= fPrimer.length - dimerThresh; lInd++) {
+    for (let rInd = 0; rInd <= rPrimer.length-dimerThresh; rInd++) {
+      let notOk = true;
+      for (let i = 0; i < dimerThresh; i++) {
+        if (!complementary(fPrimer.substring(lInd+i, lInd+i+1), rPrimer.substring(rInd+i, rInd+i+1))) {
+          notOk = false;
+          break;
+        }
+      }
+      if (notOk) {
+        //console.log(primer+" has hairpin!");
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function hasHairpin(primer) {
+  return false;
+  for (let lInd = 0; lInd <= primer.length - 2*dimerThresh; lInd++) {
+    for (let rInd = lInd+dimerThresh; rInd <= primer.length-dimerThresh; rInd++) {
+      let isHairpin = true;
+      for (let i = 0; i < dimerThresh; i++) {
+        if (!complementary(primer.substring(lInd+i, lInd+i+1), primer.substring(rInd+dimerThresh-i-1,rInd+dimerThresh-i))) {
+          isHairpin = false;
+          break;
+        }
+      }
+      if (isHairpin) {
+        //console.log(primer+" has hairpin!");
+        return true;
+      }
+    }
+  }
+  return false;
 }
