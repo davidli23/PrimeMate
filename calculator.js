@@ -133,19 +133,13 @@ function bestPrimerPair(exons, exonInd, fLeft) {
   // Loop through each possible primer pair
   for (let fRight = fLeft + minLen; fRight <= Math.min(exons[exonInd].length, fLeft + maxLen); fRight++) {
     let fPrimer = exons[exonInd].substring(fLeft, fRight);
-    if (!hasHairpin(fPrimer)) {
-      for (let rLeft = Math.max(0, minDist - (exons[exonInd].length - fRight)); rLeft < Math.min(exons[exonInd+1].length - minLen, maxDist - (exons[exonInd].length - fRight) + 1); rLeft++) {
-        for (let rRight = rLeft + minLen; rRight <= Math.min(exons[exonInd+1].length, rLeft + maxLen); rRight++) {
-          let rPrimer = reverseComplement(exons[exonInd+1].substring(rLeft, rRight));
-          if (!hasHairpin(rPrimer)) {
-            if (!isSelfDimer(fPrimer, rPrimer)) {
-              let primerPair = new PrimerPair(exons, exonInd, fLeft, fRight, rLeft, rRight);
-              if (primerPair.score > bestScore) {
-                bestPrimerPair = primerPair;
-                bestScore = primerPair.score;
-              }
-            }
-          }
+    for (let rLeft = Math.max(0, minDist - (exons[exonInd].length - fRight)); rLeft < Math.min(exons[exonInd+1].length - minLen, maxDist - (exons[exonInd].length - fRight) + 1); rLeft++) {
+      for (let rRight = rLeft + minLen; rRight <= Math.min(exons[exonInd+1].length, rLeft + maxLen); rRight++) {
+        let rPrimer = reverseComplement(exons[exonInd+1].substring(rLeft, rRight));
+        let primerPair = new PrimerPair(exons, exonInd, fLeft, fRight, rLeft, rRight);
+        if (primerPair.score > bestScore) {
+          bestPrimerPair = primerPair;
+          bestScore = primerPair.score;
         }
       }
     }
@@ -178,8 +172,7 @@ function complementary(b1, b2) {
   return (b1=="C"&&b2=="G")||(b1=="G"&&b2=="C")||(b1=="A"&&b2=="T")||(b1=="T"&&b2=="A");
 }
 
-function isSelfDimer(fPrimer, rPrimer) {
-  return false;
+function isDimer(fPrimer, rPrimer) {
   for (let lInd = 0; lInd <= fPrimer.length - dimerThresh; lInd++) {
     for (let rInd = 0; rInd <= rPrimer.length-dimerThresh; rInd++) {
       let notOk = true;
@@ -190,7 +183,6 @@ function isSelfDimer(fPrimer, rPrimer) {
         }
       }
       if (notOk) {
-        //console.log(primer+" has hairpin!");
         return true;
       }
     }
@@ -199,7 +191,6 @@ function isSelfDimer(fPrimer, rPrimer) {
 }
 
 function hasHairpin(primer) {
-  return false;
   for (let lInd = 0; lInd <= primer.length - 2*dimerThresh; lInd++) {
     for (let rInd = lInd+dimerThresh; rInd <= primer.length-dimerThresh; rInd++) {
       let isHairpin = true;
