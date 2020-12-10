@@ -11,22 +11,19 @@ chrome.runtime.sendMessage({message: "get exons"}, function(response) {
 
 function updatePage() {
   exons.forEach(function(exon, exonInd) {
-    let parity = 'even_row';
-    if (exonInd%2 == 1) {
-      parity = 'odd_row';
-    }
-    let exonElement = $("<td class='exon'></td>");
+    let exonElement = $("<td></td>");
     exonElement.attr("id", "exon"+(exonInd+1).toString());
-    exonElement.append($("<span class=pre_text></span>"));
-    exonElement.append($("<span class=mid_text></span>"));
-    exonElement.append($("<span class=post_text></span>"));
+    exonElement.attr("style", "word-wrap: break-word");
+    exonElement.append($("<span class='pre_text'></span>"));
+    exonElement.append($("<span class='high_text'></span>"));
+    exonElement.append($("<span class='post_text'></span>"));
     exonElement.find(".pre_text").text(exon);
 
-    let exonRow = $("<tr class='exon_row "+parity+"'></tr>");
+    let exonRow = $("<tr></tr>");
     exonRow.attr("id", "exon_row"+(exonInd+1).toString());
-    exonRow.append($("<td style='width:60px'>Exon "+(exonInd+1).toString()+"</td>"));
+    exonRow.append($("<td>Exon "+(exonInd+1).toString()+"</td>"));
     exonRow.append(exonElement);
-    $(".exon_table").append(exonRow);
+    $("#exon_table").append(exonRow);
   });
 
   for (let i = 0; i < 10; i++) {
@@ -54,10 +51,10 @@ function highlightPrimerPair(primerPair, primerIndex) {
       let rExonElement = $("#exon"+(selectedExon+1).toString());
       let rExonText = exons[selectedExon];
       fExonElement.find(".pre_text").text(fExonText);
-      fExonElement.find(".mid_text").text("");
+      fExonElement.find(".high_text").text("");
       fExonElement.find(".post_text").text("");
       rExonElement.find(".pre_text").text(rExonText);
-      rExonElement.find(".mid_text").text("");
+      rExonElement.find(".high_text").text("");
       rExonElement.find(".post_text").text("");
     }
     let fExonElement = $("#exon"+primerPair.exon.toString());
@@ -65,10 +62,10 @@ function highlightPrimerPair(primerPair, primerIndex) {
     let rExonElement = $("#exon"+(primerPair.exon+1).toString());
     let rExonText = exons[primerPair.exon];
     fExonElement.find(".pre_text").text(fExonText.substring(0, primerPair.fInd));
-    fExonElement.find(".mid_text").text(fExonText.substring(primerPair.fInd, primerPair.fInd+primerPair.fLen));
+    fExonElement.find(".high_text").text(fExonText.substring(primerPair.fInd, primerPair.fInd+primerPair.fLen));
     fExonElement.find(".post_text").text(fExonText.substring(primerPair.fInd+primerPair.fLen));
     rExonElement.find(".pre_text").text(rExonText.substring(0, primerPair.rInd));
-    rExonElement.find(".mid_text").text(rExonText.substring(primerPair.rInd, primerPair.rInd+primerPair.rLen));
+    rExonElement.find(".high_text").text(rExonText.substring(primerPair.rInd, primerPair.rInd+primerPair.rLen));
     rExonElement.find(".post_text").text(rExonText.substring(primerPair.rInd+primerPair.rLen));
 
     selectedPrimer = primerIndex;

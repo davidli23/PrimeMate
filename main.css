@@ -1,30 +1,35 @@
-.body_results {
-  font-size: 14px;
-}
-
-.exon_table {
-  width: 100%;
-  table-layout: fixed;
-  border-spacing: 0px;
-}
-
-.primer_pair {
-  cursor: pointer;
-}
-
-.mid_text {
+.high_text {
   background-color: #FFFF00;
 }
 
-.even_row {
-  background-color: #ffffff;
-}
-
-.odd_row {
-  background-color: #e6e6e6;
-}
-
 td {
-  vertical-align: top;
-  word-wrap:break-word
+  word-break: break-all;
+}
+
+@media (min-width: 0px) {
+  table {font-size:0.6rem;} /*1rem = 16px*/
+}
+
+/* Small devices (landscape phones, 544px and up) */
+@media (min-width: 576px) {
+}
+
+/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
+@media (min-width: 768px) {
+  table {font-size:0.7rem;} /*1rem = 16px*/
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  table {font-size:0.8rem;} /*1rem = 16px*/
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+  table {font-size:0.9rem;} /*1rem = 16px*/
+}
+
+/* XX-Large devices (larger desktops, 1400px and up) */
+@media (min-width: 1400px) {
+  table {font-size:1rem;} /*1rem = 16px*/
 }
