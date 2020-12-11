@@ -201,7 +201,6 @@ function hasHairpin(primer) {
         }
       }
       if (isHairpin) {
-        //console.log(primer+" has hairpin!");
         return true;
       }
     }

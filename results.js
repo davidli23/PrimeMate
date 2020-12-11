@@ -132,10 +132,10 @@ function updatePrimers() {
 
 function showPrimer(primerPair, index) {
   let i = index.toString();
-  let primerPairElement = $("<div class='card' id='primerPair"+i+"' style='margin-bottom:10px'></div>");
+  let primerPairElement = $("<div class='card' id='primerPair"+i+"' style='margin-bottom:8px'></div>");
   let cardHeader = $("<div class='card-header' id='primerHeading"+i+"' style='padding:6px 8px'></div>'")
   primerPairElement.append(cardHeader);
-  let primerPairBtn = $("<button class='btn btn-link btn-block text-left collapsed' type='button' data-toggle='collapse' data-target='#primerText"+i+"' aria-expanded='false' aria-controls='primerText"+i+"'>Primer Pair "+(index+1).toString()+"</button>");
+  let primerPairBtn = $("<button class='btn btn-link btn-block text-left collapsed' type='button' data-toggle='collapse' data-target='#primerText"+i+"' aria-expanded='false' aria-controls='primerText"+i+"' style='padding: 4px 6px'>Primer Pair "+(index+1).toString()+"</button>");
   primerPairBtn.click(function() {
     highlightPrimerPair(index, !primerPairBtn.hasClass('collapsed'));
   });
@@ -197,9 +197,13 @@ function primerPairInfo(primerPair) {
   prop2.append($("<div class='font-weight-bold' style='font-size:14px'>Reverse</div>"));
   prop2.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>"+primerPair.rPrimer+"</div>"));
   body.append(prop2);
+  let prop8 = $("<div></div>");
+  prop8.append($("<div class='font-weight-bold' style='font-size:14px'>Length (bp)</div>"));
+  prop8.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>for: "+primerPair.fLen.toString()+" | rev: "+primerPair.rLen.toString()+" | total: "+(primerPair.fLen+primerPair.dist+primerPair.rLen).toString()+"</div>"));
+  body.append(prop8);
   let prop3 = $("<div></div>");
-  prop3.append($("<div class='font-weight-bold' style='font-size:14px'>Melting Temperature</div>"));
-  prop3.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>for: "+primerPair.fMeltTemp.toFixed(2).toString()+"º | rev: "+primerPair.rMeltTemp.toFixed(2).toString()+"º | diff: "+primerPair.meltTempDiff.toFixed(3).toString()+"º</div>"));
+  prop3.append($("<div class='font-weight-bold' style='font-size:14px'>Melting Temp (ºC) (salt adjusted)</div>"));
+  prop3.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>for: "+primerPair.fMeltTemp.toFixed(1).toString()+" | rev: "+primerPair.rMeltTemp.toFixed(1).toString()+" | diff: "+primerPair.meltTempDiff.toFixed(2).toString()+"</div>"));
   body.append(prop3);
   let prop4 = $("<div></div>");
   prop4.append($("<div class='font-weight-bold' style='font-size:14px'>G/C Content</div>"));
@@ -210,16 +214,13 @@ function primerPairInfo(primerPair) {
   prop5.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>for: "+primerPair.fStartGC.toString()+" | rev: "+primerPair.rStartGC.toString()+"</div>"));
   body.append(prop5);
   let prop6 = $("<div></div>");
-  prop6.append($("<div class='font-weight-bold' style='font-size:14px'>Self-complementary</div>"));
+  prop6.append($("<div class='font-weight-bold' style='font-size:14px'>Hairpin</div>"));
   prop6.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>for: "+fSelfComp.toString()+" | rev: "+rSelfComp.toString()+"</div>"));
   body.append(prop6);
   let prop7 = $("<div></div>");
   prop7.append($("<div class='font-weight-bold' style='font-size:14px'>Dimerization</div>"));
   prop7.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>"+dimerization+"</div>"));
   body.append(prop7);
-  let prop8 = $("<div></div>");
-  prop8.append($("<div class='font-weight-bold' style='font-size:14px'>Length</div>"));
-  prop8.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>for: "+primerPair.fLen.toString()+" | rev: "+primerPair.rLen.toString()+" | total: "+(primerPair.fLen+primerPair.dist+primerPair.rLen).toString()+"</div>"));
-  body.append(prop8);
+
   return body;
 }
