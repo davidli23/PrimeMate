@@ -2,6 +2,11 @@
   background-color: #FFFF00;
 }
 
+.pagination-sm .page-link {
+  width:28px;
+  padding:2px 1px;
+}
+
 td {
   word-break: break-all;
 }

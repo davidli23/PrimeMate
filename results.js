@@ -2,10 +2,13 @@ var exons;
 var primerPairs;
 var selectedPrimer = -1;
 var numberPrimersDisplayed = 10;
+var activePage = 1;
+var totalPages = 10;
 
 chrome.runtime.sendMessage({message: "get exons"}, function(response) {
   exons = response.exons;
   primerPairs = calculate(response.exons);
+  totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
   console.log(primerPairs);
   updatePage();
 });
@@ -31,27 +34,122 @@ function updatePage() {
   for (let i = 0; i < numberPrimersDisplayed; i++) {
     showPrimer(primerPairs[i], i);
   }
+
+  // Add click function to primer pair pages
+  $(".page-link").click(function() {
+    // Gets the selected page
+    let selectedPageText = $(this).text();
+    let selectedPage = 0;
+    if (selectedPageText == "<") {
+      selectedPage = activePage - 1;
+    }
+    else if (selectedPageText == ">") {
+      selectedPage = activePage + 1;
+    }
+    else if (selectedPageText == "<<") {
+      selectedPage = 1;
+    }
+    else if (selectedPageText == ">>") {
+      selectedPage = totalPages;
+    }
+    else {
+      selectedPage = parseInt(selectedPageText)
+    }
+    let offset = parseInt($("#page-link-1").text())-1;
+
+    if (selectedPage != activePage) {
+      if (selectedPage == 1) {
+        $("#page-item-prev").addClass("disabled");
+        $("#page-item-front").addClass("disabled");
+        $("#page-item-next").removeClass("disabled");
+        $("#page-item-end").removeClass("disabled");
+      }
+      else if (selectedPage == totalPages) {
+        $("#page-item-next").addClass("disabled");
+        $("#page-item-end").addClass("disabled");
+        $("#page-item-prev").removeClass("disabled");
+        $("#page-item-front").removeClass("disabled");
+      }
+      else {
+        $("#page-item-prev").removeClass("disabled");
+        $("#page-item-front").removeClass("disabled");
+        $("#page-item-next").removeClass("disabled");
+        $("#page-item-end").removeClass("disabled");
+      }
+
+      for (let i = 1; i <= 5; i++) {
+        $("#page-item-"+i.toString()).removeClass("active");
+      }
+
+      if (selectedPage <= 3) {
+        $("#page-link-1").text(1);
+        $("#page-link-2").text(2);
+        $("#page-link-3").text(3);
+        $("#page-link-4").text(4);
+        $("#page-link-5").text(5);
+        $("#page-item-"+selectedPage.toString()).addClass("active");
+      }
+      else if (selectedPage >= totalPages - 2) {
+        $("#page-link-1").text(totalPages-4);
+        $("#page-link-2").text(totalPages-3);
+        $("#page-link-3").text(totalPages-2);
+        $("#page-link-4").text(totalPages-1);
+        $("#page-link-5").text(totalPages);
+        $("#page-item-"+(selectedPage-totalPages + 5).toString()).addClass("active");
+      }
+      else {
+        $("#page-link-1").text((selectedPage-2).toString());
+        $("#page-link-2").text((selectedPage-1).toString());
+        $("#page-link-3").text((selectedPage).toString());
+        $("#page-link-4").text((selectedPage+1).toString());
+        $("#page-link-5").text((selectedPage+2).toString());
+        $("#page-item-3").addClass("active");
+      }
+      activePage = selectedPage;
+      updatePrimers();
+    }
+  });
+}
+
+function updatePrimers() {
+  highlightPrimerPair(selectedPrimer, true);
+  selectedPrimer = -1;
+  for (let i = 0; i < numberPrimersDisplayed; i++) {
+    let primerNumber = (activePage-1)*numberPrimersDisplayed+i;
+    if (primerNumber >= primerPairs.length) {
+      return;
+    }
+    let primerPairBtn = $("#primerHeading"+i.toString()).find("button");
+    primerPairBtn.text("Primer Pair "+(primerNumber+1).toString());
+    primerPairBtn.click(function() {
+      highlightPrimerPair(primerNumber, !primerPairBtn.hasClass('collapsed'));
+    });
+    let primerText = $("#primerText"+i.toString());
+    primerText.collapse('hide');
+    primerText.find(".card-body").find("div").replaceWith(primerPairInfo(primerPairs[primerNumber]));
+  }
 }
 
 function showPrimer(primerPair, index) {
   let i = index.toString();
   let primerPairElement = $("<div class='card' id='primerPair"+i+"' style='margin-bottom:10px'></div>");
-  let cardHeader = $("<div class='card-header' id='primerHeading"+i+"'></div>'")
+  let cardHeader = $("<div class='card-header' id='primerHeading"+i+"' style='padding:6px 8px'></div>'")
   primerPairElement.append(cardHeader);
-  let primerPairBtn = $("<button class='btn btn-link btn-block text-left collapsed' type='button' data-toggle='collapse' data-target='#primerText"+i+"' aria-expanded='false' aria-controls='primerText"+i+"'>Primer "+(index+1).toString()+"</button>");
+  let primerPairBtn = $("<button class='btn btn-link btn-block text-left collapsed' type='button' data-toggle='collapse' data-target='#primerText"+i+"' aria-expanded='false' aria-controls='primerText"+i+"'>Primer Pair "+(index+1).toString()+"</button>");
   primerPairBtn.click(function() {
-    highlightPrimerPair(primerPair, index, !primerPairBtn.hasClass('collapsed'));
+    highlightPrimerPair(index, !primerPairBtn.hasClass('collapsed'));
   });
   cardHeader.append(primerPairBtn);
   let primerPairText = $("<div id='primerText"+i+"' class='collapse' aria-labelledby='primerHeading"+i+"' data-parent='#primers'></div>");
   primerPairElement.append(primerPairText);
-  let primerPairBody = $("<div class='card body' style='padding:8px'></div>");
+  let primerPairBody = $("<div class='card-body' style='padding:8px'></div>");
   primerPairBody.append(primerPairInfo(primerPair));
   primerPairText.append(primerPairBody);
   $("#primers").append(primerPairElement);
 }
 
-function highlightPrimerPair(primerPair, primerIndex, remove) {
+function highlightPrimerPair(primerIndex, remove) {
+  let primerPair = primerPairs[primerIndex];
   if (remove || selectedPrimer != primerIndex) {
     if (selectedPrimer >= 0) {
       let selectedExon = primerPairs[selectedPrimer].exon;
