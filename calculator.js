@@ -49,7 +49,7 @@ class PrimerPair {
     this.fLen = fRight - fLeft;
     this.rLen = rRight - rLeft;
     this.fStartGC = this.startsGC(this.fPrimer);
-    this.rStartGC = this.startsGC(this.rPrimer);
+    this.rStartGC = this.startsGC(this.rPrimerOriginal);
     this.fPercentGC = this.percentGC(this.fGCATContent);
     this.rPercentGC = this.percentGC(this.rGCATContent);;
     this.fMeltTemp = this.meltTemp(this.fGCATContent);
