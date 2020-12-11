@@ -1,7 +1,7 @@
 {
 	"name": "PrimeMate",
 	"version": "1.0",
-	"description": "",
+	"description": "Primer Generator for Ensembl",
 	"permissions": ["tabs"],
 	"content_scripts": [{
   	"matches": ["<all_urls>"],
