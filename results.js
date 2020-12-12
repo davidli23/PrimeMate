@@ -20,6 +20,8 @@ chrome.runtime.sendMessage({message: "get exons"}, function(response) {
 
 function updatePage() {
   $("title").text("Results: "+gene);
+  $("#data").attr("hidden", false);
+  $("#loading").attr("hidden", true);
   // Add exons to exon table;
   let geneLink = $("#gene-link");
   geneLink.text("("+gene+")");
@@ -134,16 +136,23 @@ function updatePrimers() {
   for (let i = 0; i < numberPrimersDisplayed; i++) {
     let primerNumber = (activePage-1)*numberPrimersDisplayed+i;
     if (primerNumber >= primerPairs.length) {
-      return;
+      let primerPair = $("#primerPair"+i.toString());
+      primerPair.attr("hidden", true);
+      let primerText = $("#primerText"+i.toString());
+      primerText.collapse('hide');
     }
-    let primerPairBtn = $("#primerHeading"+i.toString()).find("button");
-    primerPairBtn.text("Primer Pair "+(primerNumber+1).toString());
-    primerPairBtn.click(function() {
-      highlightPrimerPair(primerNumber, !primerPairBtn.hasClass('collapsed'));
-    });
-    let primerText = $("#primerText"+i.toString());
-    primerText.collapse('hide');
-    primerText.find(".card-body").find("div").replaceWith(primerPairInfo(primerPairs[primerNumber]));
+    else {
+      let primerPair = $("#primerPair"+i.toString());
+      primerPair.attr("hidden", false);
+      let primerPairBtn = $("#primerHeading"+i.toString()).find("button");
+      primerPairBtn.text("Primer Pair "+(primerNumber+1).toString());
+      primerPairBtn.click(function() {
+        highlightPrimerPair(primerNumber, !primerPairBtn.hasClass('collapsed'));
+      });
+      let primerText = $("#primerText"+i.toString());
+      primerText.collapse('hide');
+      primerText.find(".card-body").find("div").replaceWith(primerPairInfo(primerPairs[primerNumber]));
+    }
   }
 }
 
@@ -157,7 +166,7 @@ function showPrimer(primerPair, index) {
     highlightPrimerPair(index, !primerPairBtn.hasClass('collapsed'));
   });
   cardHeader.append(primerPairBtn);
-  let primerPairText = $("<div id='primerText"+i+"' class='collapse' aria-labelledby='primerHeading"+i+"' data-parent='#primers'></div>");
+  let primerPairText = $("<div id='primerText"+i+"' class='primer-text collapse' aria-labelledby='primerHeading"+i+"' data-parent='#primers'></div>");
   primerPairElement.append(primerPairText);
   let primerPairBody = $("<div class='card-body' style='padding:8px'></div>");
   primerPairBody.append(primerPairInfo(primerPair));
@@ -166,36 +175,38 @@ function showPrimer(primerPair, index) {
 }
 
 function highlightPrimerPair(primerIndex, remove) {
-  let primerPair = primerPairs[primerIndex];
-  if (remove || selectedPrimer != primerIndex) {
-    if (selectedPrimer >= 0) {
-      let selectedExon = primerPairs[selectedPrimer].exon;
-      let fExonElement = $("#exon"+selectedExon.toString());
-      let fExonText = exons[selectedExon-1];
-      let rExonElement = $("#exon"+(selectedExon+1).toString());
-      let rExonText = exons[selectedExon];
-      fExonElement.find(".pre_text").text(fExonText);
-      fExonElement.find(".high_text").text("");
-      fExonElement.find(".post_text").text("");
-      rExonElement.find(".pre_text").text(rExonText);
-      rExonElement.find(".high_text").text("");
-      rExonElement.find(".post_text").text("");
-    }
-    if (!remove) {
-      let fExonElement = $("#exon"+primerPair.exon.toString());
-      let fExonText = exons[primerPair.exon-1];
-      let rExonElement = $("#exon"+(primerPair.exon+1).toString());
-      let rExonText = exons[primerPair.exon];
-      fExonElement.find(".pre_text").text(fExonText.substring(0, primerPair.fInd));
-      fExonElement.find(".high_text").text(fExonText.substring(primerPair.fInd, primerPair.fInd+primerPair.fLen));
-      fExonElement.find(".post_text").text(fExonText.substring(primerPair.fInd+primerPair.fLen));
-      rExonElement.find(".pre_text").text(rExonText.substring(0, primerPair.rInd));
-      rExonElement.find(".high_text").text(rExonText.substring(primerPair.rInd, primerPair.rInd+primerPair.rLen));
-      rExonElement.find(".post_text").text(rExonText.substring(primerPair.rInd+primerPair.rLen));
-    }
-    selectedPrimer = primerIndex;
-    if (remove) {
-      selectedPrimer = -1;
+  if (!$(".primer-text").hasClass("collapsing")) {
+    let primerPair = primerPairs[primerIndex];
+    if (remove || selectedPrimer != primerIndex) {
+      if (selectedPrimer >= 0) {
+        let selectedExon = primerPairs[selectedPrimer].exon;
+        let fExonElement = $("#exon"+selectedExon.toString());
+        let fExonText = exons[selectedExon-1];
+        let rExonElement = $("#exon"+(selectedExon+1).toString());
+        let rExonText = exons[selectedExon];
+        fExonElement.find(".pre_text").text(fExonText);
+        fExonElement.find(".high_text").text("");
+        fExonElement.find(".post_text").text("");
+        rExonElement.find(".pre_text").text(rExonText);
+        rExonElement.find(".high_text").text("");
+        rExonElement.find(".post_text").text("");
+      }
+      if (!remove) {
+        let fExonElement = $("#exon"+primerPair.exon.toString());
+        let fExonText = exons[primerPair.exon-1];
+        let rExonElement = $("#exon"+(primerPair.exon+1).toString());
+        let rExonText = exons[primerPair.exon];
+        fExonElement.find(".pre_text").text(fExonText.substring(0, primerPair.fInd));
+        fExonElement.find(".high_text").text(fExonText.substring(primerPair.fInd, primerPair.fInd+primerPair.fLen));
+        fExonElement.find(".post_text").text(fExonText.substring(primerPair.fInd+primerPair.fLen));
+        rExonElement.find(".pre_text").text(rExonText.substring(0, primerPair.rInd));
+        rExonElement.find(".high_text").text(rExonText.substring(primerPair.rInd, primerPair.rInd+primerPair.rLen));
+        rExonElement.find(".post_text").text(rExonText.substring(primerPair.rInd+primerPair.rLen));
+      }
+      selectedPrimer = primerIndex;
+      if (remove) {
+        selectedPrimer = -1;
+      }
     }
   }
 }
