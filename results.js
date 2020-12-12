@@ -1,4 +1,7 @@
 var exons;
+var gene;
+var url;
+var introns;
 var primerPairs;
 var selectedPrimer = -1;
 var numberPrimersDisplayed = 10;
@@ -7,14 +10,21 @@ var totalPages = 10;
 
 chrome.runtime.sendMessage({message: "get exons"}, function(response) {
   exons = response.exons;
+  gene = response.gene;
+  url = response.url;
+  introns = response.introns;
   primerPairs = calculate(response.exons);
   totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
-  console.log(primerPairs);
   updatePage();
 });
 
 function updatePage() {
+  $("title").text("Results: "+gene);
   // Add exons to exon table;
+  let geneLink = $("#gene-link");
+  geneLink.text("("+gene+")");
+  geneLink.attr("href", url);
+
   exons.forEach(function(exon, exonInd) {
     let exonElement = $("<td></td>");
     exonElement.attr("id", "exon"+(exonInd+1).toString());
@@ -28,6 +38,13 @@ function updatePage() {
     exonRow.append($("<td>"+(exonInd+1).toString()+"</td>"));
     exonRow.append(exonElement);
     $("#exon_table").append(exonRow);
+
+    if (exonInd < exons.length - 1) {
+      let intronRow = $("<tr></tr>");
+      intronRow.append($("<td></td>"));
+      intronRow.append($("<td>(intron of length "+introns[exonInd+1]+")</td>"));
+      $("#exon_table").append(intronRow);
+    }
   });
 
   // Add numberPrimersDisplayed primers to display
