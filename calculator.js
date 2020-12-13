@@ -36,12 +36,36 @@ function calculate(exons) {
   return primerPairs;
 }
 
+function addGroup(primerPairs, allPrimerPairs, groupInd, groupSize) {
+  let count = 0;
+  let i = groupInd;
+  while (count < groupSize) {
+    if (i == allPrimerPairs.length) {
+      return i;
+    }
+    let primerPair = allPrimerPairs[i];
+    primerPair.fHairpin = hasHairpin(primerPair.fPrimer);
+    primerPair.rHairpin = hasHairpin(primerPair.rPrimer);
+    primerPair.dimer = isDimer(primerPair.fPrimer, primerPair.rPrimer);
+    if (isValidPair(primerPair)) {
+      primerPairs.push(primerPair);
+    }
+    else {
+      count -= 1;
+    }
+    count += 1;
+    i += 1;
+  }
+  return i;
+}
+
 class PrimerPair {
   constructor(exons, exonInd, fLeft, fRight, rLeft, rRight) {
     this.exon = exonInd + 1;
     this.fPrimer = exons[exonInd].substring(fLeft, fRight);
     this.rPrimerOriginal = exons[exonInd+1].substring(rLeft, rRight);
     this.rPrimer = reverseComplement(this.rPrimerOriginal);
+    this.dist = exons[exonInd].length - fRight + rLeft;
     this.fGCATContent = this.GCATContent(this.fPrimer);
     this.rGCATContent = this.GCATContent(this.rPrimer);
     this.fInd = fLeft;
@@ -54,8 +78,10 @@ class PrimerPair {
     this.rPercentGC = this.percentGC(this.rGCATContent);;
     this.fMeltTemp = this.meltTemp(this.fGCATContent);
     this.rMeltTemp = this.meltTemp(this.rGCATContent);
-    this.dist = exons[exonInd].length - fRight + rLeft;
     this.meltTempDiff = Math.abs(this.fMeltTemp - this.rMeltTemp);
+    this.dimer = false;
+    this.fHairpin = false;
+    this.rHairpin = false;
     this.score = this.score();
   }
 
@@ -170,6 +196,12 @@ function reverseComplement(primer) {
 
 function complementary(b1, b2) {
   return (b1=="C"&&b2=="G")||(b1=="G"&&b2=="C")||(b1=="A"&&b2=="T")||(b1=="T"&&b2=="A");
+}
+
+function isValidPair(primerPair) {
+  let fPrimer = primerPair.fPrimer;
+  let rPrimer = primerPair.rPrimer;
+  return !isDimer(fPrimer, rPrimer) && !hasHairpin(fPrimer) && !hasHairpin(rPrimer);
 }
 
 function isDimer(fPrimer, rPrimer) {

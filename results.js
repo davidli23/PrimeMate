@@ -2,31 +2,49 @@ var exons;
 var gene;
 var url;
 var introns;
-var primerPairs;
+var allPrimerPairs
+var primerPairs = [];
+
 var selectedPrimer = -1;
 var numberPrimersDisplayed = 10;
+
 var activePage = 1;
-var totalPages = 10;
+var totalPages;
+
+var groupSize = 10*numberPrimersDisplayed;
+var groupInd = 0;
 
 chrome.runtime.sendMessage({message: "get exons"}, function(response) {
   exons = response.exons;
   gene = response.gene;
   url = response.url;
   introns = response.introns;
-  primerPairs = calculate(response.exons);
+  allPrimerPairs = calculate(response.exons);
+  groupInd = addGroup(primerPairs, allPrimerPairs, groupInd, groupSize);
   totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
   updatePage();
 });
 
+// Called when the page is first loaded
 function updatePage() {
+  // Update properties, switch from loading screen
   $("title").text("Results: "+gene);
   $("#data").attr("hidden", false);
   $("#loading").attr("hidden", true);
-  // Add exons to exon table;
+  // Add gene link
   let geneLink = $("#gene-link");
   geneLink.text("("+gene+")");
   geneLink.attr("href", url);
 
+  // show more button function
+  $("#show-more").click(function() {
+      let selectedPage = totalPages;
+      groupInd = addGroup(primerPairs, allPrimerPairs, groupInd, groupSize);
+      totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
+      updatePages(selectedPage);
+  });
+
+  // Add exons to exon table;
   exons.forEach(function(exon, exonInd) {
     let exonElement = $("<td></td>");
     exonElement.attr("id", "exon"+(exonInd+1).toString());
@@ -49,7 +67,7 @@ function updatePage() {
     }
   });
 
-  // Add numberPrimersDisplayed primers to display
+  // Add primers to display
   for (let i = 0; i < numberPrimersDisplayed; i++) {
     showPrimer(primerPairs[i], i);
   }
@@ -74,62 +92,71 @@ function updatePage() {
     else {
       selectedPage = parseInt(selectedPageText)
     }
-    let offset = parseInt($("#page-link-1").text())-1;
 
-    if (selectedPage != activePage) {
-      if (selectedPage == 1) {
-        $("#page-item-prev").addClass("disabled");
-        $("#page-item-front").addClass("disabled");
-        $("#page-item-next").removeClass("disabled");
-        $("#page-item-end").removeClass("disabled");
-      }
-      else if (selectedPage == totalPages) {
-        $("#page-item-next").addClass("disabled");
-        $("#page-item-end").addClass("disabled");
-        $("#page-item-prev").removeClass("disabled");
-        $("#page-item-front").removeClass("disabled");
-      }
-      else {
-        $("#page-item-prev").removeClass("disabled");
-        $("#page-item-front").removeClass("disabled");
-        $("#page-item-next").removeClass("disabled");
-        $("#page-item-end").removeClass("disabled");
-      }
-
-      for (let i = 1; i <= 5; i++) {
-        $("#page-item-"+i.toString()).removeClass("active");
-      }
-
-      if (selectedPage <= 3) {
-        $("#page-link-1").text(1);
-        $("#page-link-2").text(2);
-        $("#page-link-3").text(3);
-        $("#page-link-4").text(4);
-        $("#page-link-5").text(5);
-        $("#page-item-"+selectedPage.toString()).addClass("active");
-      }
-      else if (selectedPage >= totalPages - 2) {
-        $("#page-link-1").text(totalPages-4);
-        $("#page-link-2").text(totalPages-3);
-        $("#page-link-3").text(totalPages-2);
-        $("#page-link-4").text(totalPages-1);
-        $("#page-link-5").text(totalPages);
-        $("#page-item-"+(selectedPage-totalPages + 5).toString()).addClass("active");
-      }
-      else {
-        $("#page-link-1").text((selectedPage-2).toString());
-        $("#page-link-2").text((selectedPage-1).toString());
-        $("#page-link-3").text((selectedPage).toString());
-        $("#page-link-4").text((selectedPage+1).toString());
-        $("#page-link-5").text((selectedPage+2).toString());
-        $("#page-item-3").addClass("active");
-      }
-      activePage = selectedPage;
-      updatePrimers();
-    }
+    updatePages(selectedPage);
   });
 }
 
+// Update page bar
+function updatePages(selectedPage) {
+  let offset = parseInt($("#page-link-1").text())-1;
+  if (selectedPage == 1) {
+    $("#page-item-prev").addClass("disabled");
+    $("#page-item-front").addClass("disabled");
+    $("#page-item-next").removeClass("disabled");
+    $("#page-item-end").removeClass("disabled");
+    $("#show-more").attr("hidden", true);
+  }
+  else if (selectedPage == totalPages) {
+    $("#page-item-next").addClass("disabled");
+    $("#page-item-end").addClass("disabled");
+    $("#page-item-prev").removeClass("disabled");
+    $("#page-item-front").removeClass("disabled");
+    if (groupInd < allPrimerPairs.length) {
+      $("#show-more").attr("hidden", false);
+    }
+  }
+  else {
+    $("#page-item-prev").removeClass("disabled");
+    $("#page-item-front").removeClass("disabled");
+    $("#page-item-next").removeClass("disabled");
+    $("#page-item-end").removeClass("disabled");
+    $("#show-more").attr("hidden", true);
+  }
+
+  for (let i = 1; i <= 5; i++) {
+    $("#page-item-"+i.toString()).removeClass("active");
+  }
+
+  if (selectedPage <= 3) {
+    $("#page-link-1").text(1);
+    $("#page-link-2").text(2);
+    $("#page-link-3").text(3);
+    $("#page-link-4").text(4);
+    $("#page-link-5").text(5);
+    $("#page-item-"+selectedPage.toString()).addClass("active");
+  }
+  else if (selectedPage >= totalPages - 2) {
+    $("#page-link-1").text(totalPages-4);
+    $("#page-link-2").text(totalPages-3);
+    $("#page-link-3").text(totalPages-2);
+    $("#page-link-4").text(totalPages-1);
+    $("#page-link-5").text(totalPages);
+    $("#page-item-"+(selectedPage-totalPages + 5).toString()).addClass("active");
+  }
+  else {
+    $("#page-link-1").text((selectedPage-2).toString());
+    $("#page-link-2").text((selectedPage-1).toString());
+    $("#page-link-3").text((selectedPage).toString());
+    $("#page-link-4").text((selectedPage+1).toString());
+    $("#page-link-5").text((selectedPage+2).toString());
+    $("#page-item-3").addClass("active");
+  }
+  activePage = selectedPage;
+  updatePrimers();
+}
+
+// Update primers loaded in accordion
 function updatePrimers() {
   highlightPrimerPair(selectedPrimer, true);
   selectedPrimer = -1;
@@ -156,6 +183,7 @@ function updatePrimers() {
   }
 }
 
+// Create cards in primer accordion
 function showPrimer(primerPair, index) {
   let i = index.toString();
   let primerPairElement = $("<div class='card' id='primerPair"+i+"' style='margin-bottom:8px'></div>");
@@ -174,6 +202,7 @@ function showPrimer(primerPair, index) {
   $("#primers").append(primerPairElement);
 }
 
+// Highlight primer in exon function
 function highlightPrimerPair(primerIndex, remove) {
   if (!$(".primer-text").hasClass("collapsing")) {
     let primerPair = primerPairs[primerIndex];
@@ -211,10 +240,11 @@ function highlightPrimerPair(primerIndex, remove) {
   }
 }
 
+// Create info element for primer pair
 function primerPairInfo(primerPair) {
-  let fSelfComp = hasHairpin(primerPair.fPrimer);
-  let rSelfComp = hasHairpin(primerPair.rPrimer);
-  let dimerization = isDimer(primerPair.fPrimer, primerPair.rPrimer);
+  let fSelfComp = primerPair.fHairpin;
+  let rSelfComp = primerPair.rHairpin;
+  let dimerization = primerPair.dimer;
 
   let body = $("<div ></div>");
   let prop1 = $("<div></div>");
