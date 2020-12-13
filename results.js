@@ -11,7 +11,7 @@ var numberPrimersDisplayed = 10;
 var activePage = 1;
 var totalPages;
 
-var groupSize = 10*numberPrimersDisplayed;
+var groupSize = 5*numberPrimersDisplayed;
 var groupInd = 0;
 
 chrome.runtime.sendMessage({message: "get exons"}, function(response) {
@@ -62,7 +62,7 @@ function updatePage() {
     if (exonInd < exons.length - 1) {
       let intronRow = $("<tr></tr>");
       intronRow.append($("<td></td>"));
-      intronRow.append($("<td>(intron of length "+introns[exonInd+1]+")</td>"));
+      intronRow.append($("<td>Intron (length: "+introns[exonInd+1]+")</td>"));
       $("#exon_table").append(intronRow);
     }
   });
@@ -248,11 +248,11 @@ function primerPairInfo(primerPair) {
 
   let body = $("<div ></div>");
   let prop1 = $("<div></div>");
-  prop1.append($("<div class='font-weight-bold' style='font-size:14px'>Forward</div>"));
+  prop1.append($("<div class='font-weight-bold' style='font-size:14px'>Forward (Exon "+primerPair.exon.toString()+")</div>"));
   prop1.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>"+primerPair.fPrimer+"</div>"));
   body.append(prop1);
   let prop2 = $("<div></div>");
-  prop2.append($("<div class='font-weight-bold' style='font-size:14px'>Reverse</div>"));
+  prop2.append($("<div class='font-weight-bold' style='font-size:14px'>Reverse (Exon "+(primerPair.exon+1).toString()+")</div>"));
   prop2.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>"+primerPair.rPrimer+"</div>"));
   body.append(prop2);
   let prop8 = $("<div></div>");
@@ -260,7 +260,7 @@ function primerPairInfo(primerPair) {
   prop8.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>for: "+primerPair.fLen.toString()+" | rev: "+primerPair.rLen.toString()+" | total: "+(primerPair.fLen+primerPair.dist+primerPair.rLen).toString()+"</div>"));
   body.append(prop8);
   let prop3 = $("<div></div>");
-  prop3.append($("<div class='font-weight-bold' style='font-size:14px'>Melting Temp (ºC) (salt adjusted)</div>"));
+  prop3.append($("<div class='font-weight-bold' style='font-size:14px'>Melting Temp (ºC) (Salt Adjusted)</div>"));
   prop3.append($("<div class='font-italic' style='font-size:12px; text-indent:10%'>for: "+primerPair.fMeltTemp.toFixed(1).toString()+" | rev: "+primerPair.rMeltTemp.toFixed(1).toString()+" | diff: "+primerPair.meltTempDiff.toFixed(2).toString()+"</div>"));
   body.append(prop3);
   let prop4 = $("<div></div>");
