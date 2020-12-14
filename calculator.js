@@ -52,7 +52,6 @@ function addGroup(primerPairs, allPrimerPairs, groupInd, groupSize) {
     }
     else {
       count -= 1;
-      console.log(primerPair);
     }
     count += 1;
     i += 1;

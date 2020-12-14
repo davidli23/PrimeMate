@@ -72,6 +72,13 @@ function updatePage() {
     showPrimer(primerPairs[i], i);
   }
 
+  // Check if need less pages
+  for (let i = 2; i <= 5; i++) {
+    if (numberPrimersDisplayed*(i-1) > primerPairs.length) {
+      $("#page-item-"+i.toString()).attr("hidden", true);
+    }
+  }
+
   // Add click function to primer pair pages
   $(".page-link").click(function() {
     // Gets the selected page
@@ -137,12 +144,21 @@ function updatePages(selectedPage) {
     $("#page-item-"+selectedPage.toString()).addClass("active");
   }
   else if (selectedPage >= totalPages - 2) {
-    $("#page-link-1").text(totalPages-4);
-    $("#page-link-2").text(totalPages-3);
-    $("#page-link-3").text(totalPages-2);
-    $("#page-link-4").text(totalPages-1);
-    $("#page-link-5").text(totalPages);
-    $("#page-item-"+(selectedPage-totalPages + 5).toString()).addClass("active");
+    if (totalPages == 4) {
+      $("#page-link-1").text("1");
+      $("#page-link-2").text(2);
+      $("#page-link-3").text(3);
+      $("#page-link-4").text(4);
+      $("#page-item-4").addClass("active");
+    }
+    else {
+      $("#page-link-1").text(totalPages-4);
+      $("#page-link-2").text(totalPages-3);
+      $("#page-link-3").text(totalPages-2);
+      $("#page-link-4").text(totalPages-1);
+      $("#page-link-5").text(totalPages);
+      $("#page-item-"+(selectedPage-totalPages + 5).toString()).addClass("active");
+    }
   }
   else {
     $("#page-link-1").text((selectedPage-2).toString());
