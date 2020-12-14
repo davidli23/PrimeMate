@@ -1,12 +1,12 @@
 .high_text {
-  background-color: #ffff33;
+	background-color: #ffff33;
 }
 
 .pagination-sm .page-link {
-  width:28px;
-  padding:2px 1px;
+	width: 28px;
+	padding: 2px 1px;
 }
 
 td {
-  word-break: break-all;
+	word-break: break-all;
 }

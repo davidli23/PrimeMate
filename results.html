@@ -1,61 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link href="bootstrap.min.css" rel="stylesheet">
-	<link href="main.css" rel="stylesheet">
-	<script src="jquery-3.5.1.min.js"></script>
-	<title>Calculating...</title>
-</head>
-<body style="min-width:576px; width:auto">
-	<div class="container">
-		<div class="row justify-content-center">
-			<img src="assets/PrimeMate-Logo.png" alt="Prime Mate Logo" style="width:280px; height:120px; object-fit:cover">
-		</div>
-	</div>
-	<div class="container mt-4" id="loading">
-		<div class="row justify-content-center">
-			<div class="spinner-border" style="width: 3rem; height:3rem" role="status">
-	  		<span class="sr-only">Loading...</span>
+	<!-- Header -->
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link href="libraries/bootstrap.min.css" rel="stylesheet" />
+		<link href="main.css" rel="stylesheet" />
+		<title>Calculating...</title>
+	</head>
+	<!-- Main body -->
+	<body style="min-width: 576px; width: auto">
+		<!-- Logo container -->
+		<div class="container">
+			<div class="row justify-content-center">
+				<img
+					src="assets/PrimeMate-Logo.png"
+					alt="Prime Mate Logo"
+					style="width: 280px; height: 120px; object-fit: cover"
+				/>
 			</div>
 		</div>
-	</div>
-	<div class="container" id="data" hidden>
-		<div class="row">
-			<div class="col-3">
-				<div class="accordian" id="primers">
-				</div>
-				<nav aria-label="Pair nav">
-				  <ul class="pagination pagination-sm justify-content-center" style="margin-bottom: 8px">
-						<li class="page-item disabled" id="page-item-front"><button class="page-link" id="page-link-front"><<</button></li>
-				    <li class="page-item disabled" id="page-item-prev"><button class="page-link" id="page-link-prev"><</button></li>
-				    <li class="page-item active" id="page-item-1"><button class="page-link" id="page-link-1">1</button></li>
-				    <li class="page-item" id="page-item-2"><button class="page-link" id="page-link-2">2</button></li>
-				    <li class="page-item" id="page-item-3"><button class="page-link" id="page-link-3">3</button></li>
-				    <li class="page-item" id="page-item-4"><button class="page-link" id="page-link-4">4</button></li>
-				    <li class="page-item" id="page-item-5"><button class="page-link" id="page-link-5">5</button></li>
-				    <li class="page-item" id="page-item-next"><button class="page-link" id="page-link-next">></button></li>
-						<li class="page-item" id="page-item-end"><button class="page-link" id="page-link-end">>></button></li>
-				  </ul>
-				</nav>
-				<div class="text-center">
-					<button class="btn btn-link text-nowrap" id="show-more" style="font-size:14px" hidden>show more</button>
+		<!-- Loading circle -->
+		<div class="container mt-4" id="loading">
+			<div class="row justify-content-center">
+				<div
+					class="spinner-border"
+					style="width: 3rem; height: 3rem"
+					role="status"
+				>
+					<span class="sr-only">Loading...</span>
 				</div>
 			</div>
-			<div class="col-9">
-				<table class="table table-striped" style="font-size:11px" id="exon_table">
-					<tr class="table-warning" style="font-size:13px">
-						<th scope="col" style="width:70px">Exon #</th>
-						<th scope="col">Sequence <a id="gene-link" target="_blank"></a></th>
-					</tr>
-					<tr></tr>
-				</table>
+		</div>
+		<!-- Main content container-->
+		<div class="container" id="data" hidden>
+			<div class="row">
+				<!-- Left side column -->
+				<div class="col-3">
+					<!-- Sorting menu -->
+					<div class="dropdown" style="margin-bottom: 10px">
+						<div>
+							Sort by
+							<button
+								class="btn dropdown-toggle"
+								type="button"
+								id="sortMenuButton"
+								data-toggle="dropdown"
+								aria-haspopup="true"
+								aria-expanded="false"
+								style="border: 1px solid black"
+							>
+								Overall
+							</button>
+							<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+								<button
+									class="dropdown-item sort-btn"
+									type="button"
+									id="sort-overall"
+								>
+									Overall
+								</button>
+								<button
+									class="dropdown-item sort-btn"
+									type="button"
+									id="sort-tempDiff"
+								>
+									Temp Diff
+								</button>
+								<button
+									class="dropdown-item sort-btn"
+									type="button"
+									id="sort-indTemp"
+								>
+									Temperature
+								</button>
+								<button
+									class="dropdown-item sort-btn"
+									type="button"
+									id="sort-indGC"
+								>
+									G/C Content
+								</button>
+								<button
+									class="dropdown-item sort-btn"
+									type="button"
+									id="sort-distance"
+								>
+									Distance
+								</button>
+								<button
+									class="dropdown-item sort-btn"
+									type="button"
+									id="sort-startEndGC"
+								>
+									G/C Ends
+								</button>
+							</div>
+						</div>
+					</div>
+					<!-- Primers sidebar -->
+					<div class="accordian" id="primers"></div>
+					<!-- Page navigation bar -->
+					<nav aria-label="Pair nav">
+						<ul
+							class="pagination pagination-sm justify-content-center"
+							style="margin-bottom: 8px"
+						>
+							<li class="page-item disabled" id="page-item-front">
+								<button class="page-link" id="page-link-front"><<</button>
+							</li>
+							<li class="page-item disabled" id="page-item-prev">
+								<button class="page-link" id="page-link-prev"><</button>
+							</li>
+							<li class="page-item active" id="page-item-1">
+								<button class="page-link" id="page-link-1">1</button>
+							</li>
+							<li class="page-item" id="page-item-2">
+								<button class="page-link" id="page-link-2">2</button>
+							</li>
+							<li class="page-item" id="page-item-3">
+								<button class="page-link" id="page-link-3">3</button>
+							</li>
+							<li class="page-item" id="page-item-4">
+								<button class="page-link" id="page-link-4">4</button>
+							</li>
+							<li class="page-item" id="page-item-5">
+								<button class="page-link" id="page-link-5">5</button>
+							</li>
+							<li class="page-item" id="page-item-next">
+								<button class="page-link" id="page-link-next">></button>
+							</li>
+							<li class="page-item" id="page-item-end">
+								<button class="page-link" id="page-link-end">>></button>
+							</li>
+						</ul>
+					</nav>
+					<!-- Show more button -->
+					<div class="text-center">
+						<button
+							class="btn btn-link text-nowrap"
+							id="show-more"
+							style="font-size: 14px"
+							hidden
+						>
+							show more
+						</button>
+					</div>
+				</div>
+				<!-- Right side column-->
+				<div class="col-9">
+					<!-- Exons table -->
+					<table
+						class="table table-striped"
+						style="font-size: 11px"
+						id="exon_table"
+					>
+						<tr class="table-warning" style="font-size: 13px">
+							<th scope="col" style="width: 70px">Exon #</th>
+							<th scope="col">
+								Sequence <a id="gene-link" target="_blank"></a>
+							</th>
+						</tr>
+						<tr></tr>
+					</table>
+				</div>
 			</div>
 		</div>
-	</div>
-	<script src="bootstrap.min.js"></script>
-	<script src="calculator.js"></script>
-	<script src="results.js"></script>
-</body>
+		<script src="libraries/jquery-3.5.1.min.js"></script>
+		<script src="libraries/popper.min.js"></script>
+		<script src="libraries/bootstrap.min.js"></script>
+		<script src="calculator.js"></script>
+		<script src="results.js"></script>
+	</body>
 </html>
