@@ -38,9 +38,6 @@ function updatePage() {
 	geneLink.text('(' + gene + ')');
 	geneLink.attr('href', url);
 
-	// Add sorting buttons logic
-	initializeSortBtns();
-
 	// show more button function
 	$('#show-more').click(function () {
 		let selectedPage = totalPages;
@@ -48,6 +45,8 @@ function updatePage() {
 		totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
 		updatePages(selectedPage);
 	});
+
+	initializeSliders();
 
 	// Add exons to exon table;
 	exons.forEach(function (exon, exonInd) {
@@ -104,6 +103,62 @@ function updatePage() {
 		}
 
 		updatePages(selectedPage);
+	});
+}
+
+function initializeSliders() {
+	$(document).on('click', '#sortMenu', function (e) {
+		e.stopPropagation();
+	});
+	$('#sort-tempDiff-val').html($('#sort-tempDiff').val());
+	$('#sort-tempDiff').on('input change', () => {
+		$('#sort-tempDiff-val').html($('#sort-tempDiff').val());
+	});
+	$('#sort-indTemp-val').html($('#sort-indTemp').val());
+	$('#sort-indTemp').on('input change', () => {
+		$('#sort-indTemp-val').html($('#sort-indTemp').val());
+	});
+	$('#sort-length-val').html($('#sort-length').val());
+	$('#sort-length').on('input change', () => {
+		$('#sort-length-val').html($('#sort-length').val());
+	});
+	$('#sort-GCContent-val').html($('#sort-GCContent').val());
+	$('#sort-GCContent').on('input change', () => {
+		$('#sort-GCContent-val').html($('#sort-GCContent').val());
+	});
+	$('#sort-GCClamp-val').html($('#sort-GCClamp').val());
+	$('#sort-GCClamp').on('input change', () => {
+		$('#sort-GCClamp-val').html($('#sort-GCClamp').val());
+	});
+	$('#sortBtn').click(function () {
+		highlightPrimerPair(selectedPrimer, true);
+		selectedPrimer = -1;
+
+		$('#sortMenu').dropdown('toggle');
+
+		let total =
+			parseInt($('#sort-tempDiff').val()) +
+			parseInt($('#sort-indTemp').val()) +
+			parseInt($('#sort-length').val()) +
+			parseInt($('#sort-GCContent').val()) +
+			parseInt($('#sort-GCClamp').val());
+		let tempDiffWeight = (100 * parseInt($('#sort-tempDiff').val())) / total;
+		let indTempWeight = (100 * parseInt($('#sort-indTemp').val())) / total;
+		let lengthWeight = (100 * parseInt($('#sort-length').val())) / total;
+		let GCContentWeight = (100 * parseInt($('#sort-GCContent').val())) / total;
+		let GCClampWeight = (100 * parseInt($('#sort-GCClamp').val())) / total;
+		sortPrimers({
+			tempDiff: tempDiffWeight,
+			indMeltTemp: indTempWeight,
+			indGCContent: GCContentWeight,
+			dist: lengthWeight,
+			startGC: GCClampWeight,
+		});
+
+		$('#sorted-notif').css('display', '');
+		setTimeout(function () {
+			$('#sorted-notif').fadeOut();
+		}, 1000);
 	});
 }
 
@@ -435,70 +490,18 @@ function primerPairInfo(primerPair) {
 	return body;
 }
 
-function initializeSortBtns() {
-	$('.sort-btn').click(function () {
-		$('.sort-btn').each(function (index, element) {
-			// element == this
-			$(this).removeClass('active');
-		});
-		highlightPrimerPair(selectedPrimer, true);
-		selectedPrimer = -1;
-		$(this).addClass('active');
-		$('#sortMenuButton').text($(this).text());
-		sortPrimers($(this).attr('id'));
+function sortPrimers(weights) {
+	allPrimerPairs.forEach(function (primerPair) {
+		primerPair.score =
+			weights.tempDiff * primerPair.tempDiffScore +
+			weights.indMeltTemp * primerPair.indMeltTempScore +
+			weights.indGCContent * primerPair.indGCContentScore +
+			weights.dist * primerPair.distScore +
+			weights.startGC * primerPair.startsGCScore;
 	});
-}
-
-function sortPrimers(btnId) {
-	let sortFunc;
-	switch (btnId) {
-		case 'sort-overall':
-			sortFunc = function (p1, p2) {
-				return p2.score - p1.score;
-			};
-			break;
-		case 'sort-tempDiff':
-			sortFunc = function (p1, p2) {
-				if (p1.tempDiffScore != p2.tempDiffScore) {
-					return p2.tempDiffScore - p1.tempDiffScore;
-				}
-				return p2.score - p1.score;
-			};
-			break;
-		case 'sort-indTemp':
-			sortFunc = function (p1, p2) {
-				if (p1.indMeltTempScore != p2.indMeltTempScore) {
-					return p2.indMeltTempScore - p1.indMeltTempScore;
-				}
-				return p2.score - p1.score;
-			};
-			break;
-		case 'sort-indGC':
-			sortFunc = function (p1, p2) {
-				if (p1.indGCContentScore != p2.indGCContentScore) {
-					return p2.indGCContentScore - p1.indGCContentScore;
-				}
-				return p2.score - p1.score;
-			};
-			break;
-		case 'sort-distance':
-			sortFunc = function (p1, p2) {
-				if (p1.distScore != p2.distScore) {
-					return p2.distScore - p1.distScore;
-				}
-				return p2.score - p1.score;
-			};
-			break;
-		case 'sort-startEndGC':
-			sortFunc = function (p1, p2) {
-				if (p1.startsGCScore != p2.startsGCScore) {
-					return p2.startsGCScore - p1.startsGCScore;
-				}
-				return p2.score - p1.score;
-			};
-			break;
-	}
-	allPrimerPairs.sort(sortFunc);
+	allPrimerPairs.sort(function (p1, p2) {
+		return p2.score - p1.score;
+	});
 	primerPairs = [];
 	groupInd = addGroup(primerPairs, allPrimerPairs, 0, groupSize);
 	totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);

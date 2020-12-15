@@ -39,63 +39,122 @@
 				<div class="col-3">
 					<!-- Sorting menu -->
 					<div class="dropdown" style="margin-bottom: 10px">
-						<div>
-							Sort by
-							<button
-								class="btn dropdown-toggle"
-								type="button"
-								id="sortMenuButton"
-								data-toggle="dropdown"
-								aria-haspopup="true"
-								aria-expanded="false"
-								style="border: 1px solid black"
-							>
-								Overall
-							</button>
-							<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-								<button
-									class="dropdown-item sort-btn"
-									type="button"
-									id="sort-overall"
-								>
-									Overall
-								</button>
-								<button
-									class="dropdown-item sort-btn"
-									type="button"
-									id="sort-tempDiff"
-								>
-									Temp Diff
-								</button>
-								<button
-									class="dropdown-item sort-btn"
-									type="button"
-									id="sort-indTemp"
-								>
-									Temperature
-								</button>
-								<button
-									class="dropdown-item sort-btn"
-									type="button"
-									id="sort-indGC"
-								>
-									G/C Content
-								</button>
-								<button
-									class="dropdown-item sort-btn"
-									type="button"
-									id="sort-distance"
-								>
-									Distance
-								</button>
-								<button
-									class="dropdown-item sort-btn"
-									type="button"
-									id="sort-startEndGC"
-								>
-									G/C Ends
-								</button>
+						<button
+							class="btn dropdown-toggle"
+							type="button"
+							id="sortMenu"
+							style="border: 1px solid black"
+							data-toggle="dropdown"
+							aria-haspopup="true"
+							aria-expanded="false"
+						>
+							Sort options
+						</button>
+						<span
+							class="font-italic"
+							id="sorted-notif"
+							style="margin-left: 10px; display: none"
+							>Sorted!</span
+						>
+						<div
+							class="dropdown-menu container"
+							id="sortMenu"
+							style="padding: 8px 10px"
+							aria-labelledby="sortMenu"
+						>
+							<div>
+								Temperature Difference
+								<div class="row" style="margin: 0px 0px">
+									<label for="sort-tempDiff" style="margin-bottom: 0px"></label>
+									<input
+										type="range"
+										class="custom-range align-self-center align-self-end"
+										style="width: 80%; margin-right: 10px"
+										min="1"
+										max="5"
+										step="1"
+										id="sort-tempDiff"
+									/>
+									<span class="align-self-center" id="sort-tempDiff-val"></span>
+								</div>
 							</div>
+							<div>
+								Individual Temperature
+								<div class="row" style="margin: 0px 0px">
+									<label for="sort-indTemp" style="margin-bottom: 0px"></label>
+									<input
+										type="range"
+										class="custom-range align-self-center align-self-end"
+										style="width: 80%; margin-right: 10px"
+										min="1"
+										max="5"
+										step="1"
+										id="sort-indTemp"
+									/>
+									<span class="align-self-center" id="sort-indTemp-val"></span>
+								</div>
+							</div>
+							<div>
+								Length
+								<div class="row" style="margin: 0px 0px">
+									<label for="sort-length" style="margin-bottom: 0px"></label>
+									<input
+										type="range"
+										class="custom-range align-self-center align-self-end"
+										style="width: 80%; margin-right: 10px"
+										min="1"
+										max="5"
+										step="1"
+										id="sort-length"
+									/>
+									<span class="align-self-center" id="sort-length-val"></span>
+								</div>
+							</div>
+							<div>
+								G/C Content
+								<div class="row" style="margin: 0px 0px">
+									<label
+										for="sort-GCContent"
+										style="margin-bottom: 0px"
+									></label>
+									<input
+										type="range"
+										class="custom-range align-self-center align-self-end"
+										style="width: 80%; margin-right: 10px"
+										min="1"
+										max="5"
+										step="1"
+										id="sort-GCContent"
+									/>
+									<span
+										class="align-self-center"
+										id="sort-GCContent-val"
+									></span>
+								</div>
+							</div>
+							<div>
+								G/C Clamps
+								<div class="row" style="margin: 0px 0px">
+									<label for="sort-GCClamp" style="margin-bottom: 0px"></label>
+									<input
+										type="range"
+										class="custom-range align-self-center align-self-end"
+										style="width: 80%; margin-right: 10px"
+										min="1"
+										max="5"
+										step="1"
+										id="sort-GCClamp"
+									/>
+									<span class="align-self-center" id="sort-GCClamp-val"></span>
+								</div>
+							</div>
+							<div
+								class="font-italic"
+								style="font-size: 12px; margin-bottom: 5px"
+							>
+								1-least important | 5-most important
+							</div>
+							<button class="btn btn-primary" id="sortBtn">Sort</button>
 						</div>
 					</div>
 					<!-- Primers sidebar -->
