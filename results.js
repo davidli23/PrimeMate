@@ -136,6 +136,13 @@ function initializeSliders() {
 
 		$('#sortMenu').dropdown('toggle');
 
+		$('#sorting-loading').attr('hidden', false);
+		$('#primers').attr('hidden', true);
+		setTimeout(function () {
+			$('#sorting-loading').attr('hidden', true);
+			$('#primers').attr('hidden', false);
+		}, 600);
+
 		let total =
 			parseInt($('#sort-tempDiff').val()) +
 			parseInt($('#sort-indTemp').val()) +
@@ -154,11 +161,6 @@ function initializeSliders() {
 			dist: lengthWeight,
 			startGC: GCClampWeight,
 		});
-
-		$('#sorted-notif').css('display', '');
-		setTimeout(function () {
-			$('#sorted-notif').fadeOut();
-		}, 1000);
 	});
 }
 

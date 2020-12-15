@@ -33,20 +33,11 @@ function run() {
 	let gene = $('title').text().split(' ')[1];
 	let url = window.location.href;
 
-	if (isValidSite()) {
-		chrome.runtime.sendMessage({
-			message: 'send exons',
-			gene: gene,
-			url: url,
-			exons: exonsText,
-			introns: introns,
-		});
-	} else {
-		alert('Not a valid site!');
-	}
-}
-
-// TODO: Determines if current site is ensembl site with exons
-function isValidSite() {
-	return window.location.hostname == 'uswest.ensembl.org';
+	chrome.runtime.sendMessage({
+		message: 'send exons',
+		gene: gene,
+		url: url,
+		exons: exonsText,
+		introns: introns,
+	});
 }
