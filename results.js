@@ -159,7 +159,7 @@ function initializeSliders() {
 			indMeltTemp: indTempWeight,
 			indGCContent: GCContentWeight,
 			dist: lengthWeight,
-			startGC: GCClampWeight,
+			clamps: GCClampWeight,
 		});
 	});
 }
@@ -454,10 +454,19 @@ function primerPairInfo(primerPair) {
 	);
 	prop5.append(
 		$(
-			"<div class='font-italic' style='font-size:12px; text-indent:10%'>for: " +
-				primerPair.fStartGC.toString() +
-				' | rev: ' +
-				primerPair.rStartGC.toString() +
+			"<div class='font-italic' style='font-size:12px; text-indent:10%'>for: starts-" +
+				primerPair.fClamps.starts.toString() +
+				', ends-' +
+				primerPair.fClamps.ends.toString() +
+				'</div>'
+		)
+	);
+	prop5.append(
+		$(
+			"<div class='font-italic' style='font-size:12px; text-indent:10%'>rev: starts-" +
+				primerPair.rClamps.starts.toString() +
+				', ends-' +
+				primerPair.rClamps.ends.toString() +
 				'</div>'
 		)
 	);
@@ -499,7 +508,7 @@ function sortPrimers(weights) {
 			weights.indMeltTemp * primerPair.indMeltTempScore +
 			weights.indGCContent * primerPair.indGCContentScore +
 			weights.dist * primerPair.distScore +
-			weights.startGC * primerPair.startsGCScore;
+			weights.clamps * primerPair.clampScore;
 	});
 	allPrimerPairs.sort(function (p1, p2) {
 		return p2.score - p1.score;

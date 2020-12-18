@@ -8,7 +8,7 @@ const weights = {
 	indMeltTemp: 20,
 	indGCContent: 20,
 	dist: 20,
-	startGC: 20,
+	clamps: 20,
 };
 const dimerThresh = 5;
 
@@ -50,7 +50,10 @@ function addGroup(primerPairs, allPrimerPairs, groupInd, groupSize) {
 		let primerPair = allPrimerPairs[i];
 		primerPair.fHairpin = hasHairpin(primerPair.fPrimer);
 		primerPair.rHairpin = hasHairpin(primerPair.rPrimer);
-		primerPair.dimer = isDimer(primerPair.fPrimer, primerPair.rPrimer);
+		primerPair.dimer =
+			isDimer(primerPair.fPrimer, primerPair.rPrimer) ||
+			isDimer(primerPair.fPrimer, primerPair.fPrimer) ||
+			isDimer(primerPair.rPrimer, primerPair.rPrimer);
 		if (isValidPair(primerPair)) {
 			primerPairs.push(primerPair);
 		} else {
@@ -75,8 +78,8 @@ class PrimerPair {
 		this.rInd = rLeft;
 		this.fLen = fRight - fLeft;
 		this.rLen = rRight - rLeft;
-		this.fStartGC = this.startsGC(this.fPrimer);
-		this.rStartGC = this.startsGC(this.rPrimerOriginal);
+		this.fClamps = this.clamps(this.fPrimer);
+		this.rClamps = this.clamps(this.rPrimer);
 		this.fPercentGC = this.percentGC(this.fGCATContent);
 		this.rPercentGC = this.percentGC(this.rGCATContent);
 		this.fMeltTemp = this.meltTemp(this.fGCATContent);
@@ -103,8 +106,17 @@ class PrimerPair {
 		return content;
 	}
 
-	startsGC(primer) {
-		return primer.substring(0, 2) == 'GC' || primer.substring(0, 2) == 'CG';
+	clamps(primer) {
+		return {
+			starts:
+				(primer.charAt(0) == 'G' || primer.charAt(0) == 'C') &&
+				(primer.charAt(1) == 'G' || primer.charAt(1) == 'C'),
+			ends:
+				(primer.charAt(primer.length - 2) == 'G' ||
+					primer.charAt(primer.length - 2) == 'C') &&
+				(primer.charAt(primer.length - 1) == 'G' ||
+					primer.charAt(primer.length - 1) == 'C'),
+		};
 	}
 
 	percentGC(content) {
@@ -127,7 +139,7 @@ class PrimerPair {
 			(purity(this.fMeltTemp, 60, 10) + purity(this.rMeltTemp, 60, 10)) / 2;
 		this.indGCContentScore = 0;
 		this.distScore = purity(this.dist, 60, 30);
-		this.startsGCScore = 0;
+		this.clampScore = 0;
 
 		if (this.fPercentGC >= 40 && this.fPercentGC <= 60) {
 			this.indGCContentScore += 0.5;
@@ -142,11 +154,17 @@ class PrimerPair {
 				purity(Math.min(this.rPercentGC, 100 - this.rPercentGC), 40, 20) / 2;
 		}
 
-		if (this.fStartGC) {
-			this.startsGCScore += 0.5;
+		if (this.fClamps.starts) {
+			this.clampScore += 0.25;
 		}
-		if (this.rStartGC) {
-			this.startsGCScore += 0.5;
+		if (this.fClamps.ends) {
+			this.clampScore += 0.25;
+		}
+		if (this.rClamps.starts) {
+			this.clampScore += 0.25;
+		}
+		if (this.rClamps.ends) {
+			this.clampScore += 0.25;
 		}
 
 		return (
@@ -154,7 +172,7 @@ class PrimerPair {
 			weights.indMeltTemp * this.indMeltTempScore +
 			weights.indGCContent * this.indGCContentScore +
 			weights.dist * this.distScore +
-			weights.startGC * this.startsGCScore
+			weights.clamps * this.clampScore
 		);
 	}
 }
