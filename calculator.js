@@ -1,5 +1,5 @@
-const minLen = 18;
-const maxLen = 24;
+var minLen = 18;
+var maxLen = 24;
 const minDist = 30;
 const maxDist = 90;
 const NaConc = 0.05;
@@ -7,14 +7,18 @@ const weights = {
 	tempDiff: 20,
 	indMeltTemp: 20,
 	indGCContent: 20,
-	dist: 20,
+	length: 20,
 	clamps: 20,
 };
 const dimerThresh = 5;
+var params;
 
 // Finds all potential pairs of primers and corresponding
 // properties and scores
-function calculate(exons) {
+function calculate(exons, paramsIn) {
+	params = paramsIn;
+	minLen = params.length.lower;
+	maxlen = params.length.upper;
 	// 2D array of potential primer pairs
 	let primerPairs = [];
 	// Loop through each exon
@@ -82,9 +86,14 @@ class PrimerPair {
 		this.rClamps = this.clamps(this.rPrimer);
 		this.fPercentGC = this.percentGC(this.fGCATContent);
 		this.rPercentGC = this.percentGC(this.rGCATContent);
-		this.fMeltTemp = this.meltTemp(this.fGCATContent);
-		this.rMeltTemp = this.meltTemp(this.rGCATContent);
-		this.meltTempDiff = Math.abs(this.fMeltTemp - this.rMeltTemp);
+		this.fMeltTempBasic = this.meltTempBasic(this.fGCATContent);
+		this.rMeltTempBasic = this.meltTempBasic(this.rGCATContent);
+		this.fMeltTempSalt = this.meltTempSalt(this.fGCATContent);
+		this.rMeltTempSalt = this.meltTempSalt(this.rGCATContent);
+		this.meltTempDiffBasic = Math.abs(
+			this.fMeltTempBasic - this.rMeltTempBasic
+		);
+		this.meltTempDiffSalt = Math.abs(this.fMeltTempSalt - this.rMeltTempSalt);
 		this.dimer = false;
 		this.fHairpin = false;
 		this.rHairpin = false;
@@ -123,7 +132,15 @@ class PrimerPair {
 		return (100 * (content.G + content.C)) / content.total;
 	}
 
-	meltTemp(content) {
+	meltTempBasic(content) {
+		return (
+			64.9 +
+			(41 * (content.G + content.C - 16.4)) /
+				(content.A + content.T + content.G + content.C)
+		);
+	}
+
+	meltTempSalt(content) {
 		return (
 			100.5 +
 			(41 * (content.G + content.C)) /
@@ -134,24 +151,61 @@ class PrimerPair {
 	}
 
 	score() {
-		this.tempDiffScore = purity(this.meltTempDiff, 0, 10);
-		this.indMeltTempScore =
-			(purity(this.fMeltTemp, 60, 10) + purity(this.rMeltTemp, 60, 10)) / 2;
+		let tempDiffBound = 5;
+		let indTempBound = 5;
+		let lengthBound = 20;
+		let GCContentBound = 10;
+		if (params.temperature.type == 'Basic') {
+			this.tempDiffScore = purity(this.meltTempDiffBasic, 0, tempDiffBound);
+			this.indMeltTempScore =
+				(purity(this.fMeltTempBasic, params.temperature.ideal, indTempBound) +
+					purity(this.rMeltTempBasic, params.temperature.ideal, indTempBound)) /
+				2;
+		} else if (params.temperature.type == 'Salt Adjusted') {
+			this.tempDiffScore = purity(this.meltTempDiffSalt, 0, tempDiffBound);
+			this.indMeltTempScore =
+				(purity(this.fMeltTempSalt, params.temperature.ideal, indTempBound) +
+					purity(this.rMeltTempSalt, params.temperature.ideal, indTempBound)) /
+				2;
+		}
 		this.indGCContentScore = 0;
-		this.distScore = purity(this.dist, 60, 30);
+		this.lengthScore = purity(
+			this.dist + this.rLen + this.fLen,
+			params.length.total,
+			lengthBound
+		);
 		this.clampScore = 0;
 
-		if (this.fPercentGC >= 40 && this.fPercentGC <= 60) {
+		if (
+			this.fPercentGC >= params.percentGC.lower &&
+			this.fPercentGC <= params.percentGC.upper
+		) {
 			this.indGCContentScore += 0.5;
 		} else {
 			this.indGCContentScore +=
-				purity(Math.min(this.fPercentGC, 100 - this.fPercentGC), 40, 20) / 2;
+				purity(
+					Math.min(
+						this.fPercentGC,
+						params.percentGC.lower + params.percentGC.upper - this.fPercentGC
+					),
+					params.percentGC.lower,
+					GCContentBound
+				) / 2;
 		}
-		if (this.rPercentGC >= 40 && this.rPercentGC <= 60) {
+		if (
+			this.rPercentGC >= params.percentGC.lower &&
+			this.rPercentGC <= params.percentGC.upper
+		) {
 			this.indGCContentScore += 0.5;
 		} else {
 			this.indGCContentScore +=
-				purity(Math.min(this.rPercentGC, 100 - this.rPercentGC), 40, 20) / 2;
+				purity(
+					Math.min(
+						this.rPercentGC,
+						params.percentGC.lower + params.percentGC.upper - this.rPercentGC
+					),
+					GCContentBound
+				) / 2;
 		}
 
 		if (this.fClamps.starts) {
@@ -171,15 +225,20 @@ class PrimerPair {
 			weights.tempDiff * this.tempDiffScore +
 			weights.indMeltTemp * this.indMeltTempScore +
 			weights.indGCContent * this.indGCContentScore +
-			weights.dist * this.distScore +
+			weights.length * this.lengthScore +
 			weights.clamps * this.clampScore
 		);
 	}
 }
 
+// Ideal has value of 1, approaches 0 as closer to bound
 function purity(value, ideal, bound) {
-	SD = bound / 2;
-	return Math.exp(-0.5 * Math.pow((value - ideal) / SD, 2));
+	// Normal distr
+	//SD = bound / 2;
+	//return Math.exp(-0.5 * Math.pow((value - ideal) / SD, 2));
+
+	// Linear
+	return Math.max(-1 * Math.abs((value - ideal) / bound) + 1, 0);
 }
 
 function bestPrimerPair(exons, exonInd, fLeft) {

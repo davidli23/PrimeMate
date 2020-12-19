@@ -1,11 +1,11 @@
 // Event listener for popup start button click
 chrome.runtime.onMessage.addListener(function (request) {
 	if (request.message == 'start') {
-		run();
+		run(request.params);
 	}
 });
 
-function run() {
+function run(params) {
 	// exons is wrapped set of each exon element
 	let exons = $('.bg2 .text_sequence.exon_sequence');
 	// Array of exon strings
@@ -39,5 +39,6 @@ function run() {
 		url: url,
 		exons: exonsText,
 		introns: introns,
+		params: params,
 	});
 }

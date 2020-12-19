@@ -2,6 +2,7 @@ var exons;
 var gene;
 var url;
 var introns;
+var params;
 var allPrimerPairs;
 var primerPairs = [];
 
@@ -19,9 +20,8 @@ chrome.runtime.sendMessage({ message: 'get exons' }, function (response) {
 	gene = response.gene;
 	url = response.url;
 	introns = response.introns;
-	allPrimerPairs = calculate(response.exons, function (p1, p2) {
-		return p2.score - p1.score;
-	});
+	params = response.params;
+	allPrimerPairs = calculate(exons, params);
 	groupInd = addGroup(primerPairs, allPrimerPairs, groupInd, groupSize);
 	totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
 	updatePage();
@@ -138,9 +138,11 @@ function initializeSliders() {
 
 		$('#sorting-loading').attr('hidden', false);
 		$('#primers').attr('hidden', true);
+		$('#nav-bar').attr('hidden', true);
 		setTimeout(function () {
 			$('#sorting-loading').attr('hidden', true);
 			$('#primers').attr('hidden', false);
+			$('#nav-bar').attr('hidden', false);
 		}, 600);
 
 		let total =
@@ -158,7 +160,7 @@ function initializeSliders() {
 			tempDiff: tempDiffWeight,
 			indMeltTemp: indTempWeight,
 			indGCContent: GCContentWeight,
-			dist: lengthWeight,
+			length: lengthWeight,
 			clamps: GCClampWeight,
 		});
 	});
@@ -414,6 +416,24 @@ function primerPairInfo(primerPair) {
 		)
 	);
 	body.append(prop8);
+	let prop9 = $('<div></div>');
+	prop9.append(
+		$(
+			"<div class='font-weight-bold' style='font-size:14px'>Melting Temp (ºC) (Basic)</div>"
+		)
+	);
+	prop9.append(
+		$(
+			"<div class='font-italic' style='font-size:12px; text-indent:10%'>for: " +
+				primerPair.fMeltTempBasic.toFixed(1).toString() +
+				' | rev: ' +
+				primerPair.rMeltTempBasic.toFixed(1).toString() +
+				' | diff: ' +
+				primerPair.meltTempDiffBasic.toFixed(2).toString() +
+				'</div>'
+		)
+	);
+	body.append(prop9);
 	let prop3 = $('<div></div>');
 	prop3.append(
 		$(
@@ -423,11 +443,11 @@ function primerPairInfo(primerPair) {
 	prop3.append(
 		$(
 			"<div class='font-italic' style='font-size:12px; text-indent:10%'>for: " +
-				primerPair.fMeltTemp.toFixed(1).toString() +
+				primerPair.fMeltTempSalt.toFixed(1).toString() +
 				' | rev: ' +
-				primerPair.rMeltTemp.toFixed(1).toString() +
+				primerPair.rMeltTempSalt.toFixed(1).toString() +
 				' | diff: ' +
-				primerPair.meltTempDiff.toFixed(2).toString() +
+				primerPair.meltTempDiffSalt.toFixed(2).toString() +
 				'</div>'
 		)
 	);
@@ -507,7 +527,7 @@ function sortPrimers(weights) {
 			weights.tempDiff * primerPair.tempDiffScore +
 			weights.indMeltTemp * primerPair.indMeltTempScore +
 			weights.indGCContent * primerPair.indGCContentScore +
-			weights.dist * primerPair.distScore +
+			weights.length * primerPair.lengthScore +
 			weights.clamps * primerPair.clampScore;
 	});
 	allPrimerPairs.sort(function (p1, p2) {
@@ -516,5 +536,6 @@ function sortPrimers(weights) {
 	primerPairs = [];
 	groupInd = addGroup(primerPairs, allPrimerPairs, 0, groupSize);
 	totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
+	console.log(primerPairs);
 	updatePages(1);
 }
