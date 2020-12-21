@@ -19,6 +19,7 @@ $('#start_button').click(function () {
 			type: $('#input-temp-type').val(),
 			ideal: parseFloat($('#input-temp-ideal').val()),
 		},
+		dimerThresh: parseInt($('#input-dimer-threshold').val()),
 	};
 	if (validParams(params)) {
 		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -38,6 +39,7 @@ function fillInputs(params) {
 	$('#input-percent-ub').val(params.percentGC.upper);
 	$('#input-temp-type').val(params.temperature.type);
 	$('#input-temp-ideal').val(params.temperature.ideal);
+	$('#input-dimer-threshold').val(params.dimerThresh);
 }
 
 function validParams(params) {

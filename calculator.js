@@ -10,7 +10,7 @@ const weights = {
 	length: 20,
 	clamps: 20,
 };
-const dimerThresh = 5;
+var dimerThresh = 5;
 var params;
 
 // Finds all potential pairs of primers and corresponding
@@ -18,7 +18,8 @@ var params;
 function calculate(exons, paramsIn) {
 	params = paramsIn;
 	minLen = params.length.lower;
-	maxlen = params.length.upper;
+	maxLen = params.length.upper;
+	dimerThresh = params.dimerThresh;
 	// 2D array of potential primer pairs
 	let primerPairs = [];
 	// Loop through each exon
