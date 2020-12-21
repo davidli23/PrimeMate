@@ -24,7 +24,7 @@
 			<form>
 				<h5>Individual Primer Length</h5>
 				<div class="form-row">
-					<div class="form-group col-6">
+					<div class="input-group mb-3 col-6">
 						<input
 							type="number"
 							step="1"
@@ -33,8 +33,11 @@
 							id="input-length-lb"
 							placeholder="Lower Bound"
 						/>
+						<div class="input-group-append">
+							<span class="input-group-text">bp</span>
+						</div>
 					</div>
-					<div class="form-group col-6">
+					<div class="input-group mb-3 col-6">
 						<input
 							type="number"
 							step="1"
@@ -43,18 +46,26 @@
 							id="input-length-ub"
 							placeholder="Upper Bound"
 						/>
+						<div class="input-group-append">
+							<span class="input-group-text">bp</span>
+						</div>
 					</div>
 				</div>
 				<h5>Total Product Length</h5>
-				<div class="form-group">
-					<input
-						type="number"
-						step="1"
-						min="0"
-						class="form-control"
-						id="input-total-len"
-						placeholder="Ideal"
-					/>
+				<div class="form-row">
+					<div class="input-group mb-3 col-12">
+						<input
+							type="number"
+							step="1"
+							min="0"
+							class="form-control"
+							id="input-total-len"
+							placeholder="Ideal"
+						/>
+						<div class="input-group-append">
+							<span class="input-group-text">bp</span>
+						</div>
+					</div>
 				</div>
 				<h5>G/C Content</h5>
 				<div class="form-row">
