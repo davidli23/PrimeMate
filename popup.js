@@ -4,21 +4,6 @@ chrome.runtime.sendMessage({ message: 'get params' }, function (response) {
 	}
 });
 
-$('#basic-check').change(function () {
-	if ($('#input-tempBasic-ideal').attr('disabled')) {
-		$('#input-tempBasic-ideal').attr('disabled', false);
-	} else {
-		$('#input-tempBasic-ideal').attr('disabled', true);
-	}
-});
-$('#salt-check').change(function () {
-	if ($('#input-tempSalt-ideal').attr('disabled')) {
-		$('#input-tempSalt-ideal').attr('disabled', false);
-	} else {
-		$('#input-tempSalt-ideal').attr('disabled', true);
-	}
-});
-
 $('#start_button').click(function () {
 	let params = {
 		length: {
@@ -34,7 +19,6 @@ $('#start_button').click(function () {
 			type: $('#input-temp-type').val(),
 			ideal: parseFloat($('#input-temp-ideal').val()),
 		},
-		dimerThresh: parseInt($('#input-dimer-threshold').val()),
 	};
 	if (validParams(params)) {
 		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
