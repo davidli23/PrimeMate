@@ -11,15 +11,31 @@
 	margin: 0px 0px;
 }
 
+.card-body {
+	padding: 6px;
+}
+
+.list-group-item {
+	border-color: transparent;
+}
+
 .fav-btn {
 	font-size: 1.25rem;
 	padding: 0px 0px;
 	opacity: 0.2;
+	border: none;
+	outline: none;
+	background-color: transparent;
+}
+.fav-btn:focus {
+	outline: none;
 }
 .fav-btn:hover {
-	opacity: 1;
+	opacity: 0.8;
 }
 .fav-btn-active {
+	color: #ffc61a;
+	border: none;
 	opacity: 1;
 }
 

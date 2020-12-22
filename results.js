@@ -6,7 +6,7 @@ var params;
 var allPrimerPairs;
 var primerPairs = [];
 
-var selectedPrimer = -1;
+var selectedPrimer = null;
 var numberPrimersDisplayed = 10;
 
 var activePage = 1;
@@ -25,11 +25,11 @@ chrome.runtime.sendMessage({ message: 'get exons' }, function (response) {
 	groupInd = addGroup(primerPairs, allPrimerPairs, groupInd, groupSize);
 	totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
 	console.log(primerPairs);
-	updatePage();
+	createPage();
 });
 
 // Called when the page is first loaded
-function updatePage() {
+function createPage() {
 	// Update properties, switch from loading screen
 	$('title').text('Results: ' + gene);
 	$('#data').attr('hidden', false);
@@ -135,22 +135,12 @@ function createPrimer(primerPair, index) {
 			'</button>'
 	);
 	primerPairBtn.click(function () {
-		highlightPrimerPair(index, !primerPairBtn.hasClass('collapsed'));
+		highlightPrimerPair(primerPair, !primerPairBtn.hasClass('collapsed'));
 	});
 	cardHeaderRow.append(primerPairBtn);
-	let primerPairFav = $(
-		'<button class="btn fav-btn shadow-none">&#9734;</button>'
-	);
+	let primerPairFav = $('<button class="fav-btn shadow-none">&#9734;</button>');
 	primerPairFav.click(function () {
-		if (!primerPair.favorite) {
-			primerPairFav.html('&#9733;');
-			primerPairFav.addClass('fav-btn-active');
-			primerPair.favorite = true;
-		} else {
-			primerPairFav.html('&#9734;');
-			primerPairFav.removeClass('fav-btn-active');
-			primerPair.favorite = false;
-		}
+		favButton(primerPairFav, primerPair);
 	});
 	cardHeaderRow.append(primerPairFav);
 	let primerPairText = $(
@@ -193,7 +183,6 @@ function initializeSliders() {
 	});
 	$('#sortBtn').click(function () {
 		highlightPrimerPair(selectedPrimer, true);
-		selectedPrimer = -1;
 
 		$('#sortMenu').dropdown('toggle');
 
@@ -295,7 +284,6 @@ function updatePages(selectedPage) {
 // Update primers loaded in accordion
 function updatePrimers() {
 	highlightPrimerPair(selectedPrimer, true);
-	selectedPrimer = -1;
 	for (let i = 0; i < numberPrimersDisplayed; i++) {
 		let primerNumber = (activePage - 1) * numberPrimersDisplayed + i;
 		if (primerNumber >= primerPairs.length) {
@@ -309,7 +297,10 @@ function updatePrimers() {
 			let primerPairBtn = $('#headerBtn' + i.toString());
 			primerPairBtn.text('Primer Pair ' + (primerNumber + 1).toString());
 			primerPairBtn.off('click').on('click', function () {
-				highlightPrimerPair(primerNumber, !primerPairBtn.hasClass('collapsed'));
+				highlightPrimerPair(
+					primerPairs[primerNumber],
+					!primerPairBtn.hasClass('collapsed')
+				);
 			});
 			let primerPairFav = primerPair.find('.fav-btn');
 			if (!primerPairs[primerNumber].favorite) {
@@ -320,15 +311,7 @@ function updatePrimers() {
 				primerPairFav.addClass('fav-btn-active');
 			}
 			primerPairFav.off('click').on('click', function () {
-				if (!primerPairs[primerNumber].favorite) {
-					primerPairFav.html('&#9733;');
-					primerPairFav.addClass('fav-btn-active');
-					primerPairs[primerNumber].favorite = true;
-				} else {
-					primerPairFav.html('&#9734;');
-					primerPairFav.removeClass('fav-btn-active');
-					primerPairs[primerNumber].favorite = false;
-				}
+				favButton(primerPairFav, primerPairs[primerNumber]);
 			});
 			let primerText = $('#primerText' + i.toString());
 			primerText.collapse('hide');
@@ -341,12 +324,11 @@ function updatePrimers() {
 }
 
 // Highlight primer in exon function
-function highlightPrimerPair(primerIndex, remove) {
+function highlightPrimerPair(primerPair, remove) {
 	if (!$('.primer-text').hasClass('collapsing')) {
-		let primerPair = primerPairs[primerIndex];
-		if (remove || selectedPrimer != primerIndex) {
-			if (selectedPrimer >= 0) {
-				let selectedExon = primerPairs[selectedPrimer].exon;
+		if (remove || selectedPrimer != primerPair) {
+			if (selectedPrimer != null) {
+				let selectedExon = selectedPrimer.exon;
 				let fExonElement = $('#exon' + selectedExon.toString());
 				let fExonText = exons[selectedExon - 1];
 				let rExonElement = $('#exon' + (selectedExon + 1).toString());
@@ -392,12 +374,44 @@ function highlightPrimerPair(primerIndex, remove) {
 					.find('.post_text')
 					.text(rExonText.substring(primerPair.rInd + primerPair.rLen));
 			}
-			selectedPrimer = primerIndex;
+			selectedPrimer = primerPair;
 			if (remove) {
-				selectedPrimer = -1;
+				selectedPrimer = null;
 			}
 		}
 	}
+}
+
+function favButton(button, primerPair) {
+	if (!primerPair.favorite) {
+		button.html('&#9733;');
+		button.addClass('fav-btn-active');
+		let listItem = $(
+			'<li class="list-group-item" id="favoriteItem' +
+				primerPair.id.toString() +
+				'"></li>'
+		);
+		listItem.append(createFavCard(primerPair));
+		$('#favorites-list').append(listItem);
+		primerPair.favorite = true;
+	} else {
+		button.html('&#9734;');
+		button.removeClass('fav-btn-active');
+		$('#favoriteItem' + primerPair.id.toString()).remove();
+		primerPair.favorite = false;
+	}
+}
+
+function createFavCard(primerPair) {
+	let card = $('<div class="card"></div>');
+	card.append(
+		$(
+			'<div class="card-header">Favorite ' + primerPair.id.toString() + '</div>'
+		)
+	);
+	card.append($('<div class="card-body" style="width: 240px"></div>'));
+	card.find('.card-body').append(primerPairInfo(primerPair));
+	return card;
 }
 
 // Create info element for primer pair
@@ -410,7 +424,7 @@ function primerPairInfo(primerPair) {
 	let prop1 = $('<div></div>');
 	prop1.append(
 		$(
-			"<div class='font-weight-bold' style='font-size:14px'>Forward (Exon " +
+			"<div class='font-weight-bold' style='font-size:13px'>Forward (Exon " +
 				primerPair.exon.toString() +
 				')</div>'
 		)
@@ -426,7 +440,7 @@ function primerPairInfo(primerPair) {
 	let prop2 = $('<div></div>');
 	prop2.append(
 		$(
-			"<div class='font-weight-bold' style='font-size:14px'>Reverse (Exon " +
+			"<div class='font-weight-bold' style='font-size:13px'>Reverse (Exon " +
 				(primerPair.exon + 1).toString() +
 				')</div>'
 		)
@@ -441,7 +455,7 @@ function primerPairInfo(primerPair) {
 	body.append(prop2);
 	let prop8 = $('<div></div>');
 	prop8.append(
-		$("<div class='font-weight-bold' style='font-size:14px'>Length (bp)</div>")
+		$("<div class='font-weight-bold' style='font-size:13px'>Length (bp)</div>")
 	);
 	prop8.append(
 		$(
@@ -458,7 +472,7 @@ function primerPairInfo(primerPair) {
 	let prop9 = $('<div></div>');
 	prop9.append(
 		$(
-			"<div class='font-weight-bold' style='font-size:14px'>Melting Temp (ºC) (Basic)</div>"
+			"<div class='font-weight-bold' style='font-size:13px'>Melting Temp (ºC) (Basic)</div>"
 		)
 	);
 	prop9.append(
@@ -476,7 +490,7 @@ function primerPairInfo(primerPair) {
 	let prop3 = $('<div></div>');
 	prop3.append(
 		$(
-			"<div class='font-weight-bold' style='font-size:14px'>Melting Temp (ºC) (Salt Adjusted)</div>"
+			"<div class='font-weight-bold' style='font-size:13px'>Melting Temp (ºC) (Salt Adjusted)</div>"
 		)
 	);
 	prop3.append(
@@ -493,7 +507,7 @@ function primerPairInfo(primerPair) {
 	body.append(prop3);
 	let prop4 = $('<div></div>');
 	prop4.append(
-		$("<div class='font-weight-bold' style='font-size:14px'>G/C Content</div>")
+		$("<div class='font-weight-bold' style='font-size:13px'>G/C Content</div>")
 	);
 	prop4.append(
 		$(
@@ -508,7 +522,7 @@ function primerPairInfo(primerPair) {
 	let prop5 = $('<div></div>');
 	prop5.append(
 		$(
-			"<div class='font-weight-bold' style='font-size:14px'>Start/End with G/C Pair</div>"
+			"<div class='font-weight-bold' style='font-size:13px'>Start/End with G/C Pair</div>"
 		)
 	);
 	prop5.append(
@@ -532,7 +546,7 @@ function primerPairInfo(primerPair) {
 	body.append(prop5);
 	let prop6 = $('<div></div>');
 	prop6.append(
-		$("<div class='font-weight-bold' style='font-size:14px'>Hairpin</div>")
+		$("<div class='font-weight-bold' style='font-size:13px'>Hairpin</div>")
 	);
 	prop6.append(
 		$(
@@ -546,7 +560,7 @@ function primerPairInfo(primerPair) {
 	body.append(prop6);
 	let prop7 = $('<div></div>');
 	prop7.append(
-		$("<div class='font-weight-bold' style='font-size:14px'>Dimerization</div>")
+		$("<div class='font-weight-bold' style='font-size:13px'>Dimerization</div>")
 	);
 	prop7.append(
 		$(

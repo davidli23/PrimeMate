@@ -29,6 +29,7 @@ function calculate(exons, paramsIn) {
 	// 2D array of potential primer pairs
 	let primerPairs = [];
 	// Loop through each exon
+	let i = 0;
 	exons.forEach(function (exon, exonInd) {
 		// Check if first or last exon
 		if (1 <= exonInd && exonInd < exons.length - 1) {
@@ -41,15 +42,14 @@ function calculate(exons, paramsIn) {
 				let primerPair = bestPrimerPair(exons, exonInd, fLeft);
 				if (primerPair != null) {
 					primerPairs.push(primerPair);
+					primerPair.id = i;
+					i += 1;
 				}
 			}
 		}
 	});
 	primerPairs.sort(function (p1, p2) {
 		return p2.score - p1.score;
-	});
-	primerPairs.forEach(function (primerPair, ind) {
-		primerPair.id = ind;
 	});
 	return primerPairs;
 }
