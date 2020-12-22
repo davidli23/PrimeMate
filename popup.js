@@ -1,10 +1,13 @@
+// Checks if there are previous options
 chrome.runtime.sendMessage({ message: 'get params' }, function (response) {
 	if (response.params != null) {
 		fillInputs(response.params);
 	}
 });
 
+// When start button is clicked
 $('#start_button').click(function () {
+	// Gets params inputs
 	let params = {
 		length: {
 			lower: parseInt($('#input-length-lb').val()),
@@ -31,6 +34,7 @@ $('#start_button').click(function () {
 	}
 });
 
+// Fills in previous inputs
 function fillInputs(params) {
 	$('#input-length-lb').val(params.length.lower);
 	$('#input-length-ub').val(params.length.upper);
@@ -42,8 +46,8 @@ function fillInputs(params) {
 	$('#input-dimer-threshold').val(params.dimerThresh);
 }
 
+// Checks if parameters are valid
 function validParams(params) {
-	console.log(params);
 	if (
 		isNaN(params.length.lower) ||
 		isNaN(params.length.upper) ||

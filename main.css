@@ -7,6 +7,22 @@
 	padding: 2px 1px;
 }
 
+.row {
+	margin: 0px 0px;
+}
+
+.fav-btn {
+	font-size: 1.25rem;
+	padding: 0px 0px;
+	opacity: 0.2;
+}
+.fav-btn:hover {
+	opacity: 1;
+}
+.fav-btn-active {
+	opacity: 1;
+}
+
 td {
 	word-break: break-all;
 }

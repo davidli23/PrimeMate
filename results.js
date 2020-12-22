@@ -24,6 +24,7 @@ chrome.runtime.sendMessage({ message: 'get exons' }, function (response) {
 	allPrimerPairs = calculate(exons, params);
 	groupInd = addGroup(primerPairs, allPrimerPairs, groupInd, groupSize);
 	totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
+	console.log(primerPairs);
 	updatePage();
 });
 
@@ -75,7 +76,7 @@ function updatePage() {
 
 	// Add primers to display
 	for (let i = 0; i < numberPrimersDisplayed; i++) {
-		showPrimer(primerPairs[i], i);
+		createPrimer(primerPairs[i], i);
 	}
 
 	// Check if need less pages
@@ -104,6 +105,66 @@ function updatePage() {
 
 		updatePages(selectedPage);
 	});
+}
+
+// Create cards in primer accordion
+function createPrimer(primerPair, index) {
+	let i = index.toString();
+	let primerPairElement = $(
+		"<div class='card' id='primerPair" +
+			i +
+			"' style='margin-bottom:8px'></div>"
+	);
+	let cardHeader = $(
+		"<div class='card-header' id='primerHeading" +
+			i +
+			"' style='padding:6px 8px'></div>'"
+	);
+	let cardHeaderRow = $("<div class='row'></div>");
+	cardHeader.append(cardHeaderRow);
+	primerPairElement.append(cardHeader);
+	let primerPairBtn = $(
+		"<button class='btn btn-link btn-block text-left collapsed' type='button' id = 'headerBtn" +
+			i +
+			"'data-toggle='collapse' data-target='#primerText" +
+			i +
+			"' aria-expanded='false' aria-controls='primerText" +
+			i +
+			"' style='padding: 4px 6px; width: 85%'>Primer Pair " +
+			(index + 1).toString() +
+			'</button>'
+	);
+	primerPairBtn.click(function () {
+		highlightPrimerPair(index, !primerPairBtn.hasClass('collapsed'));
+	});
+	cardHeaderRow.append(primerPairBtn);
+	let primerPairFav = $(
+		'<button class="btn fav-btn shadow-none">&#9734;</button>'
+	);
+	primerPairFav.click(function () {
+		if (!primerPair.favorite) {
+			primerPairFav.html('&#9733;');
+			primerPairFav.addClass('fav-btn-active');
+			primerPair.favorite = true;
+		} else {
+			primerPairFav.html('&#9734;');
+			primerPairFav.removeClass('fav-btn-active');
+			primerPair.favorite = false;
+		}
+	});
+	cardHeaderRow.append(primerPairFav);
+	let primerPairText = $(
+		"<div id='primerText" +
+			i +
+			"' class='primer-text collapse' aria-labelledby='primerHeading" +
+			i +
+			"' data-parent='#primers'></div>"
+	);
+	primerPairElement.append(primerPairText);
+	let primerPairBody = $("<div class='card-body' style='padding:8px'></div>");
+	primerPairBody.append(primerPairInfo(primerPair));
+	primerPairText.append(primerPairBody);
+	$('#primers').append(primerPairElement);
 }
 
 function initializeSliders() {
@@ -245,10 +306,29 @@ function updatePrimers() {
 		} else {
 			let primerPair = $('#primerPair' + i.toString());
 			primerPair.attr('hidden', false);
-			let primerPairBtn = $('#primerHeading' + i.toString()).find('button');
+			let primerPairBtn = $('#headerBtn' + i.toString());
 			primerPairBtn.text('Primer Pair ' + (primerNumber + 1).toString());
 			primerPairBtn.off('click').on('click', function () {
 				highlightPrimerPair(primerNumber, !primerPairBtn.hasClass('collapsed'));
+			});
+			let primerPairFav = primerPair.find('.fav-btn');
+			if (!primerPairs[primerNumber].favorite) {
+				primerPairFav.html('&#9734;');
+				primerPairFav.removeClass('fav-btn-active');
+			} else {
+				primerPairFav.html('&#9733;');
+				primerPairFav.addClass('fav-btn-active');
+			}
+			primerPairFav.off('click').on('click', function () {
+				if (!primerPairs[primerNumber].favorite) {
+					primerPairFav.html('&#9733;');
+					primerPairFav.addClass('fav-btn-active');
+					primerPairs[primerNumber].favorite = true;
+				} else {
+					primerPairFav.html('&#9734;');
+					primerPairFav.removeClass('fav-btn-active');
+					primerPairs[primerNumber].favorite = false;
+				}
 			});
 			let primerText = $('#primerText' + i.toString());
 			primerText.collapse('hide');
@@ -258,47 +338,6 @@ function updatePrimers() {
 				.replaceWith(primerPairInfo(primerPairs[primerNumber]));
 		}
 	}
-}
-
-// Create cards in primer accordion
-function showPrimer(primerPair, index) {
-	let i = index.toString();
-	let primerPairElement = $(
-		"<div class='card' id='primerPair" +
-			i +
-			"' style='margin-bottom:8px'></div>"
-	);
-	let cardHeader = $(
-		"<div class='card-header' id='primerHeading" +
-			i +
-			"' style='padding:6px 8px'></div>'"
-	);
-	primerPairElement.append(cardHeader);
-	let primerPairBtn = $(
-		"<button class='btn btn-link btn-block text-left collapsed' type='button' data-toggle='collapse' data-target='#primerText" +
-			i +
-			"' aria-expanded='false' aria-controls='primerText" +
-			i +
-			"' style='padding: 4px 6px'>Primer Pair " +
-			(index + 1).toString() +
-			'</button>'
-	);
-	primerPairBtn.click(function () {
-		highlightPrimerPair(index, !primerPairBtn.hasClass('collapsed'));
-	});
-	cardHeader.append(primerPairBtn);
-	let primerPairText = $(
-		"<div id='primerText" +
-			i +
-			"' class='primer-text collapse' aria-labelledby='primerHeading" +
-			i +
-			"' data-parent='#primers'></div>"
-	);
-	primerPairElement.append(primerPairText);
-	let primerPairBody = $("<div class='card-body' style='padding:8px'></div>");
-	primerPairBody.append(primerPairInfo(primerPair));
-	primerPairText.append(primerPairBody);
-	$('#primers').append(primerPairElement);
 }
 
 // Highlight primer in exon function
