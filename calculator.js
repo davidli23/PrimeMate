@@ -166,11 +166,7 @@ function complementary(b1, b2) {
 }
 
 function isValidPair(primerPair) {
-	let fPrimer = primerPair.fPrimer;
-	let rPrimer = primerPair.rPrimer;
-	return (
-		!isDimer(fPrimer, rPrimer) && !hasHairpin(fPrimer) && !hasHairpin(rPrimer)
-	);
+	return !primerPair.dimer && !primerPair.fHairpin && !primerPair.rHairpin;
 }
 
 function isDimer(fPrimer, rPrimer) {

@@ -11,6 +11,20 @@
 	margin: 0px 0px;
 }
 
+.prop-heading {
+	font-size: 13px;
+	font-weight: bold;
+}
+.prop-body {
+	font-size: 12px;
+	font-style: italic;
+	text-indent: 20px;
+}
+
+.card-header {
+	padding: 6px 8px;
+}
+
 .card-body {
 	padding: 6px;
 }
@@ -21,7 +35,7 @@
 
 .fav-btn {
 	font-size: 1.25rem;
-	padding: 0px 0px;
+	padding: 0px 6px;
 	opacity: 0.2;
 	border: none;
 	outline: none;
@@ -33,10 +47,22 @@
 .fav-btn:hover {
 	opacity: 0.8;
 }
+.fav-btn.fav-btn-active {
+	opacity: 1;
+}
 .fav-btn-active {
 	color: #ffc61a;
-	border: none;
+	outline: 2px black;
 	opacity: 1;
+}
+.copy-btn,
+.copy-btn:focus {
+	font-size: 1.25rem;
+	padding: 0px 12px;
+	padding-bottom: 3px;
+	border: none;
+	outline: none;
+	background-color: transparent;
 }
 
 td {

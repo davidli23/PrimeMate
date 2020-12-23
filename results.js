@@ -14,6 +14,7 @@ var totalPages;
 
 var groupSize = 5 * numberPrimersDisplayed;
 var groupInd = 0;
+var favInd = 1;
 
 chrome.runtime.sendMessage({ message: 'get exons' }, function (response) {
 	exons = response.exons;
@@ -116,33 +117,34 @@ function createPrimer(primerPair, index) {
 			"' style='margin-bottom:8px'></div>"
 	);
 	let cardHeader = $(
-		"<div class='card-header' id='primerHeading" +
-			i +
-			"' style='padding:6px 8px'></div>'"
+		"<div class='card-header' id='primerHeading" + i + "'></div>'"
 	);
 	let cardHeaderRow = $("<div class='row'></div>");
 	cardHeader.append(cardHeaderRow);
 	primerPairElement.append(cardHeader);
 	let primerPairBtn = $(
-		"<button class='btn btn-link btn-block text-left collapsed' type='button' id = 'headerBtn" +
+		"<button class='btn btn-link btn-block text-left mr-auto collapsed' type='button' id = 'headerBtn" +
 			i +
 			"'data-toggle='collapse' data-target='#primerText" +
 			i +
 			"' aria-expanded='false' aria-controls='primerText" +
 			i +
-			"' style='padding: 4px 6px; width: 85%'>Primer Pair " +
+			"' style='padding: 4px 6px; width: 60%'>Primer Pair " +
 			(index + 1).toString() +
 			'</button>'
 	);
 	primerPairBtn.click(function () {
 		highlightPrimerPair(primerPair, !primerPairBtn.hasClass('collapsed'));
+		if (!$('.primer-text').hasClass('collapsing')) {
+			$('.copy-btn-main').attr('hidden', true);
+			if (!primerPairBtn.hasClass('collapsed')) {
+				cardHeaderRow.find('.copy-btn').attr('hidden', true);
+			} else {
+				cardHeaderRow.find('.copy-btn').removeAttr('hidden');
+			}
+		}
 	});
 	cardHeaderRow.append(primerPairBtn);
-	let primerPairFav = $('<button class="fav-btn shadow-none">&#9734;</button>');
-	primerPairFav.click(function () {
-		favButton(primerPairFav, primerPair);
-	});
-	cardHeaderRow.append(primerPairFav);
 	let primerPairText = $(
 		"<div id='primerText" +
 			i +
@@ -154,6 +156,34 @@ function createPrimer(primerPair, index) {
 	let primerPairBody = $("<div class='card-body' style='padding:8px'></div>");
 	primerPairBody.append(primerPairInfo(primerPair));
 	primerPairText.append(primerPairBody);
+
+	let copyBtn = $(
+		'<button class="copy-btn copy-btn-main shadown-none align-middle" data-toggle="tooltip" data-placement="top" data-trigger="click" title="Copied" hidden>' +
+			'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard align-middle" viewBox="0 0 16 16">' +
+			'<path fill-rule="evenodd" d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>' +
+			'<path fill-rule="evenodd" d="M9.5 1h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>' +
+			'</svg></button>'
+	);
+	copyBtn.tooltip('enable');
+	copyBtn.click(function () {
+		if (window.getSelection) {
+			const selection = window.getSelection();
+			const range = document.createRange();
+			range.selectNodeContents(primerPairBody[0]);
+			selection.removeAllRanges();
+			selection.addRange(range);
+			document.execCommand('copy');
+			setTimeout(function () {
+				copyBtn.tooltip('hide');
+			}, 1000);
+		}
+	});
+	cardHeaderRow.append(copyBtn);
+	let primerPairFav = $('<button class="fav-btn shadow-none">&#9734;</button>');
+	primerPairFav.click(function () {
+		favButton(primerPairFav, primerPair);
+	});
+	cardHeaderRow.append(primerPairFav);
 	$('#primers').append(primerPairElement);
 }
 
@@ -284,6 +314,7 @@ function updatePages(selectedPage) {
 // Update primers loaded in accordion
 function updatePrimers() {
 	highlightPrimerPair(selectedPrimer, true);
+	$('.copy-btn-main').attr('hidden', true);
 	for (let i = 0; i < numberPrimersDisplayed; i++) {
 		let primerNumber = (activePage - 1) * numberPrimersDisplayed + i;
 		if (primerNumber >= primerPairs.length) {
@@ -301,6 +332,14 @@ function updatePrimers() {
 					primerPairs[primerNumber],
 					!primerPairBtn.hasClass('collapsed')
 				);
+				if (!$('.primer-text').hasClass('collapsing')) {
+					$('.copy-btn-main').attr('hidden', true);
+					if (!primerPairBtn.hasClass('collapsed')) {
+						primerPair.find('.copy-btn').attr('hidden', true);
+					} else {
+						primerPair.find('.copy-btn').removeAttr('hidden');
+					}
+				}
 			});
 			let primerPairFav = primerPair.find('.fav-btn');
 			if (!primerPairs[primerNumber].favorite) {
@@ -312,6 +351,22 @@ function updatePrimers() {
 			}
 			primerPairFav.off('click').on('click', function () {
 				favButton(primerPairFav, primerPairs[primerNumber]);
+			});
+			let copyBtn = primerPair.find('.copy-btn');
+			copyBtn.tooltip('enable');
+			copyBtn.off('click').on('click', function () {
+				if (window.getSelection) {
+					copyBtn.tooltip('show');
+					const selection = window.getSelection();
+					const range = document.createRange();
+					range.selectNodeContents(primerPair.find('.card-body')[0]);
+					selection.removeAllRanges();
+					selection.addRange(range);
+					document.execCommand('copy');
+					setTimeout(function () {
+						copyBtn.tooltip('hide');
+					}, 1000);
+				}
 			});
 			let primerText = $('#primerText' + i.toString());
 			primerText.collapse('hide');
@@ -383,6 +438,7 @@ function highlightPrimerPair(primerPair, remove) {
 }
 
 function favButton(button, primerPair) {
+	// Add as favorite
 	if (!primerPair.favorite) {
 		button.html('&#9733;');
 		button.addClass('fav-btn-active');
@@ -391,26 +447,110 @@ function favButton(button, primerPair) {
 				primerPair.id.toString() +
 				'"></li>'
 		);
-		listItem.append(createFavCard(primerPair));
+		listItem.append(createFavCard(primerPair, button));
+		if ($('#dummy-list-item').attr('hidden') == undefined) {
+			$('#dummy-list-item').attr('hidden', true);
+		}
 		$('#favorites-list').append(listItem);
 		primerPair.favorite = true;
-	} else {
+	}
+	// Remove favorite
+	else {
 		button.html('&#9734;');
 		button.removeClass('fav-btn-active');
+		let after = false;
+		$('#favorites-list li').each(function (index) {
+			if (
+				!after &&
+				$(this).attr('id') == 'favoriteItem' + primerPair.id.toString()
+			) {
+				after = true;
+			}
+			if (after) {
+				$(this)
+					.find('.btn-link')
+					.text('Favorite ' + (index - 1).toString());
+			}
+		});
+		favInd -= 1;
 		$('#favoriteItem' + primerPair.id.toString()).remove();
+		if ($('#favorites-list li').length == 1) {
+			$('#dummy-list-item').removeAttr('hidden');
+		}
 		primerPair.favorite = false;
 	}
 }
 
-function createFavCard(primerPair) {
+function createFavCard(primerPair, button) {
 	let card = $('<div class="card"></div>');
 	card.append(
 		$(
-			'<div class="card-header">Favorite ' + primerPair.id.toString() + '</div>'
+			'<div class="card-header""><div class="row">' +
+				'<button class="btn btn-link btn-block text-left mr-auto" type="button" style="padding: 4px 6px; width: 60%">Favorite ' +
+				favInd.toString() +
+				'</button></div></div>'
 		)
 	);
+	favInd += 1;
+	card.find('button').click(function () {
+		highlightPrimerPair(primerPair, false);
+		$('#exon' + (primerPair.exon + 1).toString())[0].scrollIntoView({
+			behavior: 'smooth',
+			block: 'center',
+		});
+	});
+	let favBtn = $(
+		'<button class="fav-btn fav-btn-active shadow-none">&#9733;</button>'
+	);
+	let copyBtn = $(
+		'<button class="copy-btn shadown-none align-middle" data-toggle="tooltip" data-placement="top" data-trigger="click" title="Copied">' +
+			'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard align-middle" viewBox="0 0 16 16">' +
+			'<path fill-rule="evenodd" d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>' +
+			'<path fill-rule="evenodd" d="M9.5 1h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>' +
+			'</svg></button>'
+	);
+	card.find('.row').append(copyBtn);
+	card.find('.row').append(favBtn);
 	card.append($('<div class="card-body" style="width: 240px"></div>'));
 	card.find('.card-body').append(primerPairInfo(primerPair));
+	copyBtn.tooltip('enable');
+	copyBtn.click(function () {
+		if (window.getSelection) {
+			const selection = window.getSelection();
+			const range = document.createRange();
+			range.selectNodeContents(card.find('.card-body')[0]);
+			selection.removeAllRanges();
+			selection.addRange(range);
+			document.execCommand('copy');
+			setTimeout(function () {
+				copyBtn.tooltip('hide');
+			}, 1000);
+		}
+	});
+	favBtn.click(function () {
+		button.html('&#9734;');
+		button.removeClass('fav-btn-active');
+		let after = false;
+		$('#favorites-list li').each(function (index) {
+			if (
+				!after &&
+				$(this).attr('id') == 'favoriteItem' + primerPair.id.toString()
+			) {
+				after = true;
+			}
+			if (after) {
+				$(this)
+					.find('.btn-link')
+					.text('Favorite ' + (index - 1).toString());
+			}
+		});
+		favInd -= 1;
+		$('#favoriteItem' + primerPair.id.toString()).remove();
+		if ($('#favorites-list li').length == 1) {
+			$('#dummy-list-item').removeAttr('hidden');
+		}
+		primerPair.favorite = false;
+	});
 	return card;
 }
 
@@ -420,46 +560,32 @@ function primerPairInfo(primerPair) {
 	let rSelfComp = primerPair.rHairpin;
 	let dimerization = primerPair.dimer;
 
-	let body = $('<div ></div>');
+	let body = $('<div></div>');
 	let prop1 = $('<div></div>');
 	prop1.append(
 		$(
-			"<div class='font-weight-bold' style='font-size:13px'>Forward (Exon " +
+			"<div class='prop-heading'>Forward (Exon " +
 				primerPair.exon.toString() +
 				')</div>'
 		)
 	);
-	prop1.append(
-		$(
-			"<div class='font-italic' style='font-size:12px; text-indent:10%'>" +
-				primerPair.fPrimer +
-				'</div>'
-		)
-	);
+	prop1.append($("<div class='prop-body'>" + primerPair.fPrimer + '</div>'));
 	body.append(prop1);
 	let prop2 = $('<div></div>');
 	prop2.append(
 		$(
-			"<div class='font-weight-bold' style='font-size:13px'>Reverse (Exon " +
+			"<div class='prop-heading''>Reverse (Exon " +
 				(primerPair.exon + 1).toString() +
 				')</div>'
 		)
 	);
-	prop2.append(
-		$(
-			"<div class='font-italic' style='font-size:12px; text-indent:10%'>" +
-				primerPair.rPrimer +
-				'</div>'
-		)
-	);
+	prop2.append($("<div class='prop-body'>" + primerPair.rPrimer + '</div>'));
 	body.append(prop2);
 	let prop8 = $('<div></div>');
-	prop8.append(
-		$("<div class='font-weight-bold' style='font-size:13px'>Length (bp)</div>")
-	);
+	prop8.append($("<div class='prop-heading''>Length (bp)</div>"));
 	prop8.append(
 		$(
-			"<div class='font-italic' style='font-size:12px; text-indent:10%'>for: " +
+			"<div class='prop-body'>for: " +
 				primerPair.fLen.toString() +
 				' | rev: ' +
 				primerPair.rLen.toString() +
@@ -470,14 +596,10 @@ function primerPairInfo(primerPair) {
 	);
 	body.append(prop8);
 	let prop9 = $('<div></div>');
+	prop9.append($("<div class='prop-heading''>Melting Temp (ºC) (Basic)</div>"));
 	prop9.append(
 		$(
-			"<div class='font-weight-bold' style='font-size:13px'>Melting Temp (ºC) (Basic)</div>"
-		)
-	);
-	prop9.append(
-		$(
-			"<div class='font-italic' style='font-size:12px; text-indent:10%'>for: " +
+			"<div class='prop-body'>for: " +
 				primerPair.fMeltTempBasic.toFixed(1).toString() +
 				' | rev: ' +
 				primerPair.rMeltTempBasic.toFixed(1).toString() +
@@ -489,13 +611,11 @@ function primerPairInfo(primerPair) {
 	body.append(prop9);
 	let prop3 = $('<div></div>');
 	prop3.append(
-		$(
-			"<div class='font-weight-bold' style='font-size:13px'>Melting Temp (ºC) (Salt Adjusted)</div>"
-		)
+		$("<div class='prop-heading''>Melting Temp (ºC) (Salt Adjusted)</div>")
 	);
 	prop3.append(
 		$(
-			"<div class='font-italic' style='font-size:12px; text-indent:10%'>for: " +
+			"<div class='prop-body'>for: " +
 				primerPair.fMeltTempSalt.toFixed(1).toString() +
 				' | rev: ' +
 				primerPair.rMeltTempSalt.toFixed(1).toString() +
@@ -506,12 +626,10 @@ function primerPairInfo(primerPair) {
 	);
 	body.append(prop3);
 	let prop4 = $('<div></div>');
-	prop4.append(
-		$("<div class='font-weight-bold' style='font-size:13px'>G/C Content</div>")
-	);
+	prop4.append($("<div class='prop-heading''>G/C Content</div>"));
 	prop4.append(
 		$(
-			"<div class='font-italic' style='font-size:12px; text-indent:10%'>for: " +
+			"<div class='prop-body'>for: " +
 				primerPair.fPercentGC.toFixed(1).toString() +
 				'% | rev: ' +
 				primerPair.rPercentGC.toFixed(1).toString() +
@@ -520,14 +638,10 @@ function primerPairInfo(primerPair) {
 	);
 	body.append(prop4);
 	let prop5 = $('<div></div>');
+	prop5.append($("<div class='prop-heading''>Start/End with G/C Pair</div>"));
 	prop5.append(
 		$(
-			"<div class='font-weight-bold' style='font-size:13px'>Start/End with G/C Pair</div>"
-		)
-	);
-	prop5.append(
-		$(
-			"<div class='font-italic' style='font-size:12px; text-indent:10%'>for: starts-" +
+			"<div class='prop-body'>for: starts-" +
 				primerPair.fClamps.starts.toString() +
 				', ends-' +
 				primerPair.fClamps.ends.toString() +
@@ -536,7 +650,7 @@ function primerPairInfo(primerPair) {
 	);
 	prop5.append(
 		$(
-			"<div class='font-italic' style='font-size:12px; text-indent:10%'>rev: starts-" +
+			"<div class='prop-body'>rev: starts-" +
 				primerPair.rClamps.starts.toString() +
 				', ends-' +
 				primerPair.rClamps.ends.toString() +
@@ -545,12 +659,10 @@ function primerPairInfo(primerPair) {
 	);
 	body.append(prop5);
 	let prop6 = $('<div></div>');
-	prop6.append(
-		$("<div class='font-weight-bold' style='font-size:13px'>Hairpin</div>")
-	);
+	prop6.append($("<div class='prop-heading''>Hairpin</div>"));
 	prop6.append(
 		$(
-			"<div class='font-italic' style='font-size:12px; text-indent:10%'>for: " +
+			"<div class='prop-body'>for: " +
 				fSelfComp.toString() +
 				' | rev: ' +
 				rSelfComp.toString() +
@@ -559,16 +671,8 @@ function primerPairInfo(primerPair) {
 	);
 	body.append(prop6);
 	let prop7 = $('<div></div>');
-	prop7.append(
-		$("<div class='font-weight-bold' style='font-size:13px'>Dimerization</div>")
-	);
-	prop7.append(
-		$(
-			"<div class='font-italic' style='font-size:12px; text-indent:10%'>" +
-				dimerization +
-				'</div>'
-		)
-	);
+	prop7.append($("<div class='prop-heading''>Dimerization</div>"));
+	prop7.append($("<div class='prop-body'>" + dimerization + '</div>'));
 	body.append(prop7);
 
 	return body;
