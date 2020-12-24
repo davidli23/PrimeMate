@@ -32,7 +32,10 @@ function calculate(exons, paramsIn) {
 	let i = 0;
 	exons.forEach(function (exon, exonInd) {
 		// Check if first or last exon
-		if (1 <= exonInd && exonInd < exons.length - 1) {
+		if (
+			(1 <= exonInd && exonInd < exons.length - 1) ||
+			(exons.length <= 3 && exonInd == 0)
+		) {
 			// Loop through each starting index, taking the best pair with that starting index
 			for (
 				let fLeft = Math.max(0, exon.length - maxDist - maxLen);
