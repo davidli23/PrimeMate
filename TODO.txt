@@ -1,2 +1,1 @@
-1. Inform if no primers are found
-2. Look into primers not showing up
+1. Look into primers not showing up

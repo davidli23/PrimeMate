@@ -22,11 +22,18 @@ chrome.runtime.sendMessage({ message: 'get exons' }, function (response) {
 	url = response.url;
 	introns = response.introns;
 	params = response.params;
-	allPrimerPairs = calculate(exons, params);
-	groupInd = addGroup(primerPairs, allPrimerPairs, groupInd, groupSize);
-	totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
-	console.log(primerPairs);
-	createPage();
+	setTimeout(function () {
+		allPrimerPairs = calculate(exons, params);
+		groupInd = addGroup(primerPairs, allPrimerPairs, groupInd, groupSize);
+		totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
+		console.log(primerPairs);
+		createPage();
+		if (primerPairs.length === 0) {
+			$('.col-3 .dropdown').attr('hidden', true);
+			$('.no-results').removeAttr('hidden');
+			$('#nav-bar').attr('hidden', true);
+		}
+	}, 100);
 });
 
 // Called when the page is first loaded
@@ -63,7 +70,7 @@ function createPage() {
 		exonRow.attr('id', 'exon_row' + (exonInd + 1).toString());
 		exonRow.append($('<td>' + (exonInd + 1).toString() + '</td>'));
 		exonRow.append(exonElement);
-		$('#exon_table').append(exonRow);
+		$('#exon-table').append(exonRow);
 
 		if (exonInd < exons.length - 1) {
 			let intronRow = $('<tr></tr>');
@@ -71,12 +78,16 @@ function createPage() {
 			intronRow.append(
 				$('<td>Intron (length: ' + introns[exonInd + 1] + ')</td>')
 			);
-			$('#exon_table').append(intronRow);
+			$('#exon-table').append(intronRow);
 		}
 	});
 
 	// Add primers to display
-	for (let i = 0; i < numberPrimersDisplayed; i++) {
+	for (
+		let i = 0;
+		i < Math.min(primerPairs.length, numberPrimersDisplayed);
+		i++
+	) {
 		createPrimer(primerPairs[i], i);
 	}
 
@@ -112,9 +123,7 @@ function createPage() {
 function createPrimer(primerPair, index) {
 	let i = index.toString();
 	let primerPairElement = $(
-		"<div class='card' id='primerPair" +
-			i +
-			"' style='margin-bottom:8px'></div>"
+		"<div class='card primer-card' id='primerPair" + i + "'></div>"
 	);
 	let cardHeader = $(
 		"<div class='card-header' id='primerHeading" + i + "'></div>'"
@@ -123,13 +132,13 @@ function createPrimer(primerPair, index) {
 	cardHeader.append(cardHeaderRow);
 	primerPairElement.append(cardHeader);
 	let primerPairBtn = $(
-		"<button class='btn btn-link btn-block text-left mr-auto collapsed' type='button' id = 'headerBtn" +
+		"<button class='primer-btn btn btn-link btn-block text-left mr-auto collapsed' type='button' id = 'headerBtn" +
 			i +
 			"'data-toggle='collapse' data-target='#primerText" +
 			i +
 			"' aria-expanded='false' aria-controls='primerText" +
 			i +
-			"' style='padding: 4px 6px; width: 60%'>Primer Pair " +
+			"'>Primer Pair " +
 			(index + 1).toString() +
 			'</button>'
 	);
@@ -153,7 +162,7 @@ function createPrimer(primerPair, index) {
 			"' data-parent='#primers'></div>"
 	);
 	primerPairElement.append(primerPairText);
-	let primerPairBody = $("<div class='card-body' style='padding:8px'></div>");
+	let primerPairBody = $("<div class='card-body'></div>");
 	primerPairBody.append(primerPairInfo(primerPair));
 	primerPairText.append(primerPairBody);
 
@@ -482,11 +491,11 @@ function favButton(button, primerPair) {
 }
 
 function createFavCard(primerPair, button) {
-	let card = $('<div class="card"></div>');
+	let card = $('<div class="card primer-card"></div>');
 	card.append(
 		$(
 			'<div class="card-header""><div class="row">' +
-				'<button class="btn btn-link btn-block text-left mr-auto" type="button" style="padding: 4px 6px; width: 60%">Favorite ' +
+				'<button class="btn btn-link btn-block text-left mr-auto" type="button">Favorite ' +
 				favInd.toString() +
 				'</button></div></div>'
 		)
@@ -494,6 +503,13 @@ function createFavCard(primerPair, button) {
 	favInd += 1;
 	card.find('button').click(function () {
 		highlightPrimerPair(primerPair, false);
+		$('.accordian .primer-card').each(function (index, element) {
+			if (!$(this).find('.primer-btn').hasClass('collapsed')) {
+				$(this).find('.primer-text').collapse('hide');
+
+				$(this).find('.copy-btn').attr('hidden', true);
+			}
+		});
 		$('#exon' + (primerPair.exon + 1).toString())[0].scrollIntoView({
 			behavior: 'smooth',
 			block: 'center',
@@ -511,7 +527,7 @@ function createFavCard(primerPair, button) {
 	);
 	card.find('.row').append(copyBtn);
 	card.find('.row').append(favBtn);
-	card.append($('<div class="card-body" style="width: 240px"></div>'));
+	card.append($('<div class="card-body"></div>'));
 	card.find('.card-body').append(primerPairInfo(primerPair));
 	copyBtn.tooltip('enable');
 	copyBtn.click(function () {
@@ -560,30 +576,34 @@ function primerPairInfo(primerPair) {
 	let rSelfComp = primerPair.rHairpin;
 	let dimerization = primerPair.dimer;
 
-	let body = $('<div></div>');
-	let prop1 = $('<div></div>');
-	prop1.append(
+	let body = $('<div class="primer-props"></div>');
+	let propForward = $('<div></div>');
+	propForward.append(
 		$(
 			"<div class='prop-heading'>Forward (Exon " +
 				primerPair.exon.toString() +
 				')</div>'
 		)
 	);
-	prop1.append($("<div class='prop-body'>" + primerPair.fPrimer + '</div>'));
-	body.append(prop1);
-	let prop2 = $('<div></div>');
-	prop2.append(
+	propForward.append(
+		$("<div class='prop-body'>" + primerPair.fPrimer + '</div>')
+	);
+	body.append(propForward);
+	let propReverse = $('<div></div>');
+	propReverse.append(
 		$(
-			"<div class='prop-heading''>Reverse (Exon " +
+			"<div class='prop-heading'>Reverse (Exon " +
 				(primerPair.exon + 1).toString() +
 				')</div>'
 		)
 	);
-	prop2.append($("<div class='prop-body'>" + primerPair.rPrimer + '</div>'));
-	body.append(prop2);
-	let prop8 = $('<div></div>');
-	prop8.append($("<div class='prop-heading''>Length (bp)</div>"));
-	prop8.append(
+	propReverse.append(
+		$("<div class='prop-body'>" + primerPair.rPrimer + '</div>')
+	);
+	body.append(propReverse);
+	let propLength = $('<div></div>');
+	propLength.append($("<div class='prop-heading'>Length (bp)</div>"));
+	propLength.append(
 		$(
 			"<div class='prop-body'>for: " +
 				primerPair.fLen.toString() +
@@ -594,10 +614,12 @@ function primerPairInfo(primerPair) {
 				'</div>'
 		)
 	);
-	body.append(prop8);
-	let prop9 = $('<div></div>');
-	prop9.append($("<div class='prop-heading''>Melting Temp (ºC) (Basic)</div>"));
-	prop9.append(
+	body.append(propLength);
+	let propTempBasic = $('<div></div>');
+	propTempBasic.append(
+		$("<div class='prop-heading'>Melting Temp (ºC) (Basic)</div>")
+	);
+	propTempBasic.append(
 		$(
 			"<div class='prop-body'>for: " +
 				primerPair.fMeltTempBasic.toFixed(1).toString() +
@@ -608,12 +630,12 @@ function primerPairInfo(primerPair) {
 				'</div>'
 		)
 	);
-	body.append(prop9);
-	let prop3 = $('<div></div>');
-	prop3.append(
-		$("<div class='prop-heading''>Melting Temp (ºC) (Salt Adjusted)</div>")
+	body.append(propTempBasic);
+	let propTempSalt = $('<div></div>');
+	propTempSalt.append(
+		$("<div class='prop-heading'>Melting Temp (ºC) (Salt Adjusted)</div>")
 	);
-	prop3.append(
+	propTempSalt.append(
 		$(
 			"<div class='prop-body'>for: " +
 				primerPair.fMeltTempSalt.toFixed(1).toString() +
@@ -624,10 +646,10 @@ function primerPairInfo(primerPair) {
 				'</div>'
 		)
 	);
-	body.append(prop3);
-	let prop4 = $('<div></div>');
-	prop4.append($("<div class='prop-heading''>G/C Content</div>"));
-	prop4.append(
+	body.append(propTempSalt);
+	let propGCContent = $('<div></div>');
+	propGCContent.append($("<div class='prop-heading'>G/C Content</div>"));
+	propGCContent.append(
 		$(
 			"<div class='prop-body'>for: " +
 				primerPair.fPercentGC.toFixed(1).toString() +
@@ -636,10 +658,12 @@ function primerPairInfo(primerPair) {
 				'%</div>'
 		)
 	);
-	body.append(prop4);
-	let prop5 = $('<div></div>');
-	prop5.append($("<div class='prop-heading''>Start/End with G/C Pair</div>"));
-	prop5.append(
+	body.append(propGCContent);
+	let propGCClamp = $('<div></div>');
+	propGCClamp.append(
+		$("<div class='prop-heading'>Start/End with G/C Pair</div>")
+	);
+	propGCClamp.append(
 		$(
 			"<div class='prop-body'>for: starts-" +
 				primerPair.fClamps.starts.toString() +
@@ -648,7 +672,7 @@ function primerPairInfo(primerPair) {
 				'</div>'
 		)
 	);
-	prop5.append(
+	propGCClamp.append(
 		$(
 			"<div class='prop-body'>rev: starts-" +
 				primerPair.rClamps.starts.toString() +
@@ -657,10 +681,10 @@ function primerPairInfo(primerPair) {
 				'</div>'
 		)
 	);
-	body.append(prop5);
-	let prop6 = $('<div></div>');
-	prop6.append($("<div class='prop-heading''>Hairpin</div>"));
-	prop6.append(
+	body.append(propGCClamp);
+	let propHairpin = $('<div></div>');
+	propHairpin.append($("<div class='prop-heading'>Hairpin</div>"));
+	propHairpin.append(
 		$(
 			"<div class='prop-body'>for: " +
 				fSelfComp.toString() +
@@ -669,11 +693,11 @@ function primerPairInfo(primerPair) {
 				'</div>'
 		)
 	);
-	body.append(prop6);
-	let prop7 = $('<div></div>');
-	prop7.append($("<div class='prop-heading''>Dimerization</div>"));
-	prop7.append($("<div class='prop-body'>" + dimerization + '</div>'));
-	body.append(prop7);
+	body.append(propHairpin);
+	let propDimer = $('<div></div>');
+	propDimer.append($("<div class='prop-heading'>Dimerization</div>"));
+	propDimer.append($("<div class='prop-body'>" + dimerization + '</div>'));
+	body.append(propDimer);
 
 	return body;
 }

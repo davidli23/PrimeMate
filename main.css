@@ -1,24 +1,13 @@
-.high_text {
-	background-color: #ffff33;
-}
-
-.pagination-sm .page-link {
-	width: 28px;
-	padding: 2px 1px;
-}
+/* GENERAL */
 
 .row {
 	margin: 0px 0px;
 }
 
-.prop-heading {
-	font-size: 13px;
-	font-weight: bold;
-}
-.prop-body {
-	font-size: 12px;
-	font-style: italic;
-	text-indent: 20px;
+img {
+	display: block;
+	margin: auto;
+	object-fit: cover;
 }
 
 .card-header {
@@ -26,12 +15,219 @@
 }
 
 .card-body {
-	padding: 6px;
+	padding: 8px;
+}
+
+.primer-props .prop-heading {
+	font-size: 0.8rem;
+	font-weight: bold;
+}
+.primer-props .prop-body {
+	font-size: 0.75rem;
+	font-style: italic;
+	width: 90%;
+	margin-left: auto;
+	margin-right: 0;
 }
 
 .list-group-item {
 	border-color: transparent;
+	padding: 12px 10px;
 }
+
+/* POPUP */
+
+.body-popup {
+	width: 400px;
+}
+
+.body-popup .container {
+	padding-left: 15px;
+	padding-right: 15px;
+	padding-bottom: 15px;
+	background-color: rgb(242, 242, 242);
+}
+
+.body-popup .container img {
+	width: 200px;
+	height: 88px;
+}
+
+.body-popup button {
+	display: block;
+	margin: auto;
+}
+
+.body-popup select.form-control {
+	padding-left: 8px;
+}
+
+/* RESULTS */
+
+.results-body {
+	min-width: 576px;
+	width: auto;
+}
+
+/* TOP ROW */
+
+.results-body img {
+	width: 280px;
+	height: 144px;
+}
+
+.results-body .spinner-border {
+	width: 3rem;
+	height: 3rem;
+	display: block;
+	margin: auto;
+}
+
+/* OPTION MENU */
+
+.results-body .dropdown {
+	margin-bottom: 10px;
+}
+
+.results-body .dropdown .dropdown-toggle {
+	border: 1px solid rgba(0, 0, 0, 0.25);
+	padding: 8px 14px;
+}
+
+.results-body .dropdown .dropdown-menu {
+	padding: 10px 0px 10px 10px;
+	margin-top: -1px;
+}
+
+.results-body .dropdown .dropdown-menu .option-text {
+	font-size: 0.9rem;
+}
+
+.results-body .dropdown .dropdown-menu label {
+	margin-bottom: 0px;
+}
+
+.results-body .dropdown .dropdown-menu .row {
+	margin-top: 2px;
+	margin-bottom: 4px;
+}
+
+.results-body .dropdown .dropdown-menu input {
+	width: 80%;
+}
+
+.results-body .dropdown .dropdown-menu .option-val {
+	width: 20%;
+	text-align: center;
+}
+
+.results-body .dropdown .options-info {
+	font-style: italic;
+	font-size: 0.8rem;
+}
+
+.results-body .dropdown .dropdown-menu .button-row {
+	margin-top: 8px;
+}
+
+.results-body #sortBtn {
+	padding: 0.25rem 0.75rem;
+}
+
+.results-body #sorting-loading {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.results-body #sorting-loading .spinner-border {
+	width: 2rem;
+	height: 2rem;
+}
+
+/* NO RESULTS */
+
+.results-body .no-results {
+	font-size: 1.25rem;
+	font-style: italic;
+	text-align: center;
+	opacity: 0.75;
+}
+
+/* PRIMER RESULTS */
+
+.results-body .primer-card {
+	margin-bottom: 8px;
+}
+
+.results-body .primer-card .primer-btn {
+	padding: 4px 6px;
+	width: 60%;
+}
+
+.results-body .primer-card .primer-card-body {
+	padding: 8px;
+}
+
+/* NAV BAR */
+
+.results-body #nav-bar ul {
+	margin-bottom: 4px;
+}
+
+.results-body .results-body #nav-bar .pagination-sm .page-link {
+	width: 28px;
+	padding: 2px 1px;
+}
+
+.results-body #show-more {
+	font-size: 0.8rem;
+}
+
+/* EXONS TABLE */
+
+.results-body #exon-table {
+	font-size: 0.75rem;
+}
+
+.results-body #exon-table tr.table-warning {
+	font-size: 0.8rem;
+}
+
+.results-body #exon-table tr.table-warning th.left-header {
+	width: 68px;
+}
+
+.results-body #exon-table td {
+	word-break: break-all;
+}
+
+.results-body #exon-table .high_text {
+	background-color: #ffff33;
+}
+
+/* FAVORITES */
+
+.results-body h4.fav-label {
+	margin-left: 20px;
+	margin-top: 20px;
+}
+
+.results-body .favorites li.list-group-item .card {
+	height: 420px;
+	width: 240px;
+}
+
+.results-body .favorites .btn-link {
+	padding: 4px 6px;
+	width: 60%;
+}
+
+.results-body #dummy-list-item .card-body span {
+	opacity: 0.5;
+	font-style: italic;
+}
+
+/* FAVORITE AND COPY BUTTONS */
 
 .fav-btn {
 	font-size: 1.25rem;
@@ -63,8 +259,4 @@
 	border: none;
 	outline: none;
 	background-color: transparent;
-}
-
-td {
-	word-break: break-all;
 }

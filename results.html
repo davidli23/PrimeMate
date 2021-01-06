@@ -15,25 +15,17 @@
 		<title>Calculating...</title>
 	</head>
 	<!-- Main body -->
-	<body style="min-width: 576px; width: auto">
+	<body class="results-body">
 		<!-- Logo container -->
 		<div class="container">
 			<div class="row justify-content-center">
-				<img
-					src="assets/PrimeMate-Logo.png"
-					alt="Prime Mate Logo"
-					style="width: 280px; height: 120px; object-fit: cover"
-				/>
+				<img src="assets/PrimeMate-Logo.png" alt="Prime Mate Logo" />
 			</div>
 		</div>
 		<!-- Loading circle -->
 		<div class="container mt-4" id="loading">
-			<div class="row justify-content-center">
-				<div
-					class="spinner-border"
-					style="width: 3rem; height: 3rem"
-					role="status"
-				>
+			<div class="row">
+				<div class="spinner-border" role="status">
 					<span class="sr-only">Loading...</span>
 				</div>
 			</div>
@@ -45,12 +37,11 @@
 				<!-- Left side column -->
 				<div class="col-3">
 					<!-- Sorting menu -->
-					<div class="dropdown" style="margin-bottom: 10px">
+					<div class="dropdown">
 						<button
 							class="btn dropdown-toggle shadow-none"
 							type="button"
 							id="sortMenu"
-							style="border: 1px solid black"
 							data-toggle="dropdown"
 							aria-haspopup="true"
 							aria-expanded="false"
@@ -60,116 +51,118 @@
 						<div
 							class="dropdown-menu container"
 							id="sortMenu"
-							style="padding: 8px 10px"
 							aria-labelledby="sortMenu"
 						>
 							<div>
-								Temperature Difference
-								<div class="row" style="margin: 0px 0px">
-									<label for="sort-tempDiff" style="margin-bottom: 0px"></label>
+								<span class="option-text">Temperature Difference</span>
+								<div class="row">
+									<label for="sort-tempDiff"></label>
 									<input
 										type="range"
-										class="custom-range align-self-center align-self-end"
-										style="width: 80%; margin-right: 15px"
+										class="custom-range"
 										min="1"
 										max="5"
 										step="1"
 										id="sort-tempDiff"
 									/>
-									<span class="align-self-center" id="sort-tempDiff-val"></span>
+									<span
+										class="option-text option-val"
+										id="sort-tempDiff-val"
+									></span>
 								</div>
 							</div>
 							<div>
-								Individual Temperature
-								<div class="row" style="margin: 0px 0px">
-									<label for="sort-indTemp" style="margin-bottom: 0px"></label>
+								<span class="option-text">Individual Temperature</span>
+								<div class="row">
+									<label for="sort-indTemp"></label>
 									<input
 										type="range"
-										class="custom-range align-self-center align-self-end"
-										style="width: 80%; margin-right: 15px"
+										class="custom-range"
 										min="1"
 										max="5"
 										step="1"
 										id="sort-indTemp"
 									/>
-									<span class="align-self-center" id="sort-indTemp-val"></span>
+									<span
+										class="option-text option-val"
+										id="sort-indTemp-val"
+									></span>
 								</div>
 							</div>
 							<div>
-								Length
-								<div class="row" style="margin: 0px 0px">
-									<label for="sort-length" style="margin-bottom: 0px"></label>
+								<span class="option-text">Length</span>
+								<div class="row">
+									<label for="sort-length"></label>
 									<input
 										type="range"
-										class="custom-range align-self-center align-self-end"
-										style="width: 80%; margin-right: 15px"
+										class="custom-range"
 										min="1"
 										max="5"
 										step="1"
 										id="sort-length"
 									/>
-									<span class="align-self-center" id="sort-length-val"></span>
+									<span
+										class="option-text option-val"
+										id="sort-length-val"
+									></span>
 								</div>
 							</div>
 							<div>
-								G/C Content
-								<div class="row" style="margin: 0px 0px">
+								<span class="option-text">G/C Content</span>
+								<div class="row">
 									<label
 										for="sort-GCContent"
 										style="margin-bottom: 0px"
 									></label>
 									<input
 										type="range"
-										class="custom-range align-self-center align-self-end"
-										style="width: 80%; margin-right: 15px"
+										class="custom-range"
 										min="1"
 										max="5"
 										step="1"
 										id="sort-GCContent"
 									/>
 									<span
-										class="align-self-center"
+										class="option-text option-val"
 										id="sort-GCContent-val"
 									></span>
 								</div>
 							</div>
 							<div>
-								G/C Clamps
-								<div class="row" style="margin: 0px 0px">
-									<label for="sort-GCClamp" style="margin-bottom: 0px"></label>
+								<span class="option-text">G/C Clamps</span>
+								<div class="row">
+									<label for="sort-GCClamp"></label>
 									<input
 										type="range"
-										class="custom-range align-self-center align-self-end"
-										style="width: 80%; margin-right: 15px"
+										class="custom-range"
 										min="1"
 										max="5"
 										step="1"
 										id="sort-GCClamp"
 									/>
-									<span class="align-self-center" id="sort-GCClamp-val"></span>
+									<span
+										class="option-text option-val"
+										id="sort-GCClamp-val"
+									></span>
 								</div>
 							</div>
-							<div
-								class="font-italic"
-								style="font-size: 12px; margin-bottom: 5px"
-							>
-								1-not important | 5-very important
+							<div>
+								<span class="options-info"
+									>1-not important | 5-very important</span
+								>
 							</div>
-							<button class="btn btn-primary" id="sortBtn">Sort</button>
+							<div class="row button-row">
+								<button class="btn btn-primary" id="sortBtn">Sort</button>
+							</div>
 						</div>
 					</div>
+					<!-- No results -->
+					<div class="no-results" hidden>
+						No results found with current parameters
+					</div>
 					<!-- Sorting loading circle -->
-					<div
-						class="row justify-content-center"
-						id="sorting-loading"
-						style="margin-top: 20px; margin-bottom: 20px"
-						hidden
-					>
-						<div
-							class="spinner-border"
-							style="width: 2rem; height: 2rem"
-							role="status"
-						>
+					<div class="row justify-content-center" id="sorting-loading" hidden>
+						<div class="spinner-border" role="status">
 							<span class="sr-only">Loading...</span>
 						</div>
 					</div>
@@ -177,10 +170,7 @@
 					<div class="accordian" id="primers"></div>
 					<!-- Page navigation bar -->
 					<nav aria-label="Pair nav" id="nav-bar">
-						<ul
-							class="pagination pagination-sm justify-content-center"
-							style="margin-bottom: 8px"
-						>
+						<ul class="pagination pagination-sm justify-content-center">
 							<li class="page-item disabled" id="page-item-front">
 								<button class="page-link" id="page-link-front"><<</button>
 							</li>
@@ -212,12 +202,7 @@
 					</nav>
 					<!-- Show more button -->
 					<div class="text-center">
-						<button
-							class="btn btn-link text-nowrap"
-							id="show-more"
-							style="font-size: 14px"
-							hidden
-						>
+						<button class="btn btn-link text-nowrap" id="show-more" hidden>
 							show more
 						</button>
 					</div>
@@ -228,10 +213,10 @@
 					<table
 						class="table table-striped"
 						style="font-size: 11px"
-						id="exon_table"
+						id="exon-table"
 					>
-						<tr class="table-warning" style="font-size: 13px">
-							<th scope="col" style="width: 70px">Exon #</th>
+						<tr class="table-warning">
+							<th scope="col" class="left-header">Exon #</th>
 							<th scope="col">
 								Sequence <a id="gene-link" target="_blank"></a>
 							</th>
@@ -242,19 +227,17 @@
 			</div>
 			<!-- Bottom Row -->
 			<div class="row">
-				<h4 style="margin-left: 20px; margin-top: 20px">Favorites</h4>
+				<h4 class="fav-label">Favorites</h4>
 			</div>
 			<div class="row">
 				<div class="favorites overflow-auto">
 					<ul class="list-group list-group-horizontal" id="favorites-list">
 						<li class="list-group-item" id="dummy-list-item">
-							<div class="card" style="height: 410px; width: 240px">
+							<div class="card">
 								<div
 									class="card-body d-flex align-items-center justify-content-center"
 								>
-									<span style="opacity: 0.5; font-style: italic"
-										>No Favorites</span
-									>
+									<span>No Favorites</span>
 								</div>
 							</div>
 						</li>
