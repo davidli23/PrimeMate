@@ -34,7 +34,7 @@ function calculate(exons, paramsIn) {
 		// Check if first or last exon
 		if (
 			(1 <= exonInd && exonInd < exons.length - 1) ||
-			(exons.length <= 3 && exonInd == 0)
+			(exons.length <= 5 && exonInd == 0)
 		) {
 			// Loop through each starting index, taking the best pair with that starting index
 			for (
@@ -94,7 +94,7 @@ function addGroup(primerPairs, allPrimerPairs, groupInd, groupSize) {
 
 function bestPrimerPair(exons, exonInd, fLeft) {
 	let bestPrimerPair = null;
-	let bestScore = 0;
+	let bestScore = Number.MIN_VALUE;
 
 	// Loop through each possible primer pair
 	for (
