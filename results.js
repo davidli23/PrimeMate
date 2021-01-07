@@ -22,11 +22,11 @@ chrome.runtime.sendMessage({ message: 'get exons' }, function (response) {
 	url = response.url;
 	introns = response.introns;
 	params = response.params;
+	console.log(params);
 	setTimeout(function () {
 		allPrimerPairs = calculate(exons, params);
 		groupInd = addGroup(primerPairs, allPrimerPairs, groupInd, groupSize);
 		totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
-		console.log(primerPairs);
 		createPage();
 		if (primerPairs.length === 0) {
 			$('.col-3 .dropdown').attr('hidden', true);
@@ -717,6 +717,5 @@ function sortPrimers(weights) {
 	primerPairs = [];
 	groupInd = addGroup(primerPairs, allPrimerPairs, 0, groupSize);
 	totalPages = Math.ceil(primerPairs.length / numberPrimersDisplayed);
-	console.log(primerPairs);
 	updatePages(1);
 }

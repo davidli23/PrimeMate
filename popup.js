@@ -23,6 +23,7 @@ $('#start_button').click(function () {
 			ideal: parseFloat($('#input-temp-ideal').val()),
 		},
 		dimerThresh: parseInt($('#input-dimer-threshold').val()),
+		exonOneChecked: $('#input-exonOne').prop('checked'),
 	};
 	if (validParams(params)) {
 		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -44,6 +45,7 @@ function fillInputs(params) {
 	$('#input-temp-type').val(params.temperature.type);
 	$('#input-temp-ideal').val(params.temperature.ideal);
 	$('#input-dimer-threshold').val(params.dimerThresh);
+	$('#input-exonOne').prop('checked', params.exonOneChecked);
 }
 
 // Checks if parameters are valid

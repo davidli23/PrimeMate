@@ -3,13 +3,6 @@ var maxLen = 24;
 var minDist = 30;
 var maxDist = 90;
 const NaConc = 0.05;
-const weights = {
-	tempDiff: 20,
-	indMeltTemp: 20,
-	indGCContent: 20,
-	length: 20,
-	clamps: 20,
-};
 var dimerThresh = 5;
 var params;
 
@@ -34,7 +27,7 @@ function calculate(exons, paramsIn) {
 		// Check if first or last exon
 		if (
 			(1 <= exonInd && exonInd < exons.length - 1) ||
-			(exons.length <= 5 && exonInd == 0)
+			(exonInd == 0 && params.exonOneChecked)
 		) {
 			// Loop through each starting index, taking the best pair with that starting index
 			for (
@@ -55,16 +48,6 @@ function calculate(exons, paramsIn) {
 		return p2.score - p1.score;
 	});
 	return primerPairs;
-}
-
-// Ideal has value of 1, approaches 0 as closer to bound
-function purity(value, ideal, bound) {
-	// Normal distr
-	//SD = bound / 2;
-	//return Math.exp(-0.5 * Math.pow((value - ideal) / SD, 2));
-
-	// Linear
-	return Math.max(-1 * Math.abs((value - ideal) / bound) + 1, 0);
 }
 
 function addGroup(primerPairs, allPrimerPairs, groupInd, groupSize) {
@@ -94,7 +77,7 @@ function addGroup(primerPairs, allPrimerPairs, groupInd, groupSize) {
 
 function bestPrimerPair(exons, exonInd, fLeft) {
 	let bestPrimerPair = null;
-	let bestScore = Number.MIN_VALUE;
+	let bestScore = 0;
 
 	// Loop through each possible primer pair
 	for (
@@ -102,7 +85,6 @@ function bestPrimerPair(exons, exonInd, fLeft) {
 		fRight <= Math.min(exons[exonInd].length, fLeft + maxLen);
 		fRight++
 	) {
-		let fPrimer = exons[exonInd].substring(fLeft, fRight);
 		for (
 			let rLeft = Math.max(0, minDist - (exons[exonInd].length - fRight));
 			rLeft <
@@ -117,9 +99,6 @@ function bestPrimerPair(exons, exonInd, fLeft) {
 				rRight <= Math.min(exons[exonInd + 1].length, rLeft + maxLen);
 				rRight++
 			) {
-				let rPrimer = reverseComplement(
-					exons[exonInd + 1].substring(rLeft, rRight)
-				);
 				let primerPair = new PrimerPair(
 					exons,
 					exonInd,

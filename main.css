@@ -49,8 +49,16 @@ img {
 }
 
 .body-popup .container img {
-	width: 200px;
-	height: 88px;
+	margin: 12px auto;
+}
+
+.body-popup .form-check {
+	margin-top: -8px;
+	margin-bottom: 8px;
+}
+
+.body-popup .form-check-input {
+	margin-top: 0.35rem;
 }
 
 .body-popup button {
@@ -72,8 +80,12 @@ img {
 /* TOP ROW */
 
 .results-body img {
-	width: 280px;
-	height: 144px;
+	width: 275px;
+	margin: 20px auto;
+}
+
+.results-body #loading {
+	margin-top: 16px;
 }
 
 .results-body .spinner-border {

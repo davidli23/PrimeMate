@@ -1,3 +1,21 @@
+const weights = {
+	tempDiff: 20,
+	indMeltTemp: 20,
+	indGCContent: 20,
+	length: 20,
+	clamps: 20,
+};
+
+// Ideal has value of 1, approaches 0 as closer to bound
+function purity(value, ideal, bound) {
+	// Normal distr
+	//SD = bound / 2;
+	//return Math.exp(-0.5 * Math.pow((value - ideal) / SD, 2));
+
+	// Linear
+	return Math.max(-1 * Math.abs((value - ideal) / bound) + 1, 0);
+}
+
 class PrimerPair {
 	constructor(exons, exonInd, fLeft, fRight, rLeft, rRight) {
 		// General info
@@ -107,14 +125,13 @@ class PrimerPair {
 					purity(this.rMeltTempSalt, params.temperature.ideal, indTempBound)) /
 				2;
 		}
-		this.indGCContentScore = 0;
 		this.lengthScore = purity(
 			this.dist + this.rLen + this.fLen,
 			params.length.total,
 			lengthBound
 		);
-		this.clampScore = 0;
 
+		this.indGCContentScore = 0;
 		if (
 			this.fPercentGC >= params.percentGC.lower &&
 			this.fPercentGC <= params.percentGC.upper
@@ -143,10 +160,12 @@ class PrimerPair {
 						this.rPercentGC,
 						params.percentGC.lower + params.percentGC.upper - this.rPercentGC
 					),
+					params.percentGC.lower,
 					GCContentBound
 				) / 2;
 		}
 
+		this.clampScore = 0;
 		if (this.fClamps.starts) {
 			this.clampScore += 0.25;
 		}
