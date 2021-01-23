@@ -166,45 +166,90 @@
 							<span class="sr-only">Loading...</span>
 						</div>
 					</div>
-					<!-- Primers sidebar -->
-					<div class="accordian" id="primers"></div>
-					<!-- Page navigation bar -->
-					<nav aria-label="Pair nav" id="nav-bar">
-						<ul class="pagination pagination-sm justify-content-center">
-							<li class="page-item disabled" id="page-item-front">
-								<button class="page-link" id="page-link-front"><<</button>
-							</li>
-							<li class="page-item disabled" id="page-item-prev">
-								<button class="page-link" id="page-link-prev"><</button>
-							</li>
-							<li class="page-item active" id="page-item-1">
-								<button class="page-link" id="page-link-1">1</button>
-							</li>
-							<li class="page-item" id="page-item-2">
-								<button class="page-link" id="page-link-2">2</button>
-							</li>
-							<li class="page-item" id="page-item-3">
-								<button class="page-link" id="page-link-3">3</button>
-							</li>
-							<li class="page-item" id="page-item-4">
-								<button class="page-link" id="page-link-4">4</button>
-							</li>
-							<li class="page-item" id="page-item-5">
-								<button class="page-link" id="page-link-5">5</button>
-							</li>
-							<li class="page-item" id="page-item-next">
-								<button class="page-link" id="page-link-next">></button>
-							</li>
-							<li class="page-item" id="page-item-end">
-								<button class="page-link" id="page-link-end">>></button>
-							</li>
-						</ul>
-					</nav>
-					<!-- Show more button -->
-					<div class="text-center">
-						<button class="btn btn-link text-nowrap" id="show-more" hidden>
-							show more
-						</button>
+					<!-- All/favorites nav bar -->
+					<ul class="nav nav-tabs" id="primerTabs" role="tablist">
+						<li class="nav-item">
+							<a
+								class="nav-link active"
+								id="all-tab"
+								data-toggle="tab"
+								href="#all"
+								role="tab"
+								aria-controls="all"
+								aria-selected="true"
+								>All</a
+							>
+						</li>
+						<li class="nav-item">
+							<a
+								class="nav-link"
+								id="fav-tab"
+								data-toggle="tab"
+								href="#fav"
+								role="tab"
+								aria-controls="fav"
+								aria-selected="false"
+								>Favorites</a
+							>
+						</li>
+					</ul>
+					<div class="tab-content" id="primerTabsContent">
+						<div
+							class="tab-pane fade show active"
+							id="all"
+							role="tabpanel"
+							aria-labelledby="all-tab"
+						>
+							<!-- All primers sidebar -->
+							<div class="accordian" id="primers"></div>
+							<!-- Page navigation bar -->
+							<nav aria-label="Pair nav" id="nav-bar">
+								<ul class="pagination pagination-sm justify-content-center">
+									<li class="page-item disabled" id="page-item-front">
+										<button class="page-link" id="page-link-front"><<</button>
+									</li>
+									<li class="page-item disabled" id="page-item-prev">
+										<button class="page-link" id="page-link-prev"><</button>
+									</li>
+									<li class="page-item active" id="page-item-1">
+										<button class="page-link" id="page-link-1">1</button>
+									</li>
+									<li class="page-item" id="page-item-2">
+										<button class="page-link" id="page-link-2">2</button>
+									</li>
+									<li class="page-item" id="page-item-3">
+										<button class="page-link" id="page-link-3">3</button>
+									</li>
+									<li class="page-item" id="page-item-4">
+										<button class="page-link" id="page-link-4">4</button>
+									</li>
+									<li class="page-item" id="page-item-5">
+										<button class="page-link" id="page-link-5">5</button>
+									</li>
+									<li class="page-item" id="page-item-next">
+										<button class="page-link" id="page-link-next">></button>
+									</li>
+									<li class="page-item" id="page-item-end">
+										<button class="page-link" id="page-link-end">>></button>
+									</li>
+								</ul>
+							</nav>
+							<!-- Show more button -->
+							<div class="text-center">
+								<button class="btn btn-link text-nowrap" id="show-more" hidden>
+									show more
+								</button>
+							</div>
+						</div>
+						<div
+							class="tab-pane fade"
+							id="fav"
+							role="tabpanel"
+							aria-labelledby="fav-tab"
+						>
+							<!-- Favorites list -->
+							<div class="accordian" id="favorites-list"></div>
+						</div>
 					</div>
 				</div>
 				<!-- Right side column-->
@@ -223,25 +268,6 @@
 						</tr>
 						<tr></tr>
 					</table>
-				</div>
-			</div>
-			<!-- Bottom Row -->
-			<div class="row">
-				<h4 class="fav-label">Favorites</h4>
-			</div>
-			<div class="row">
-				<div class="favorites overflow-auto">
-					<ul class="list-group list-group-horizontal" id="favorites-list">
-						<li class="list-group-item" id="dummy-list-item">
-							<div class="card">
-								<div
-									class="card-body d-flex align-items-center justify-content-center"
-								>
-									<span>No Favorites</span>
-								</div>
-							</div>
-						</li>
-					</ul>
 				</div>
 			</div>
 		</div>

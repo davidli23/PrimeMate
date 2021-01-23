@@ -66,6 +66,7 @@ function addGroup(primerPairs, allPrimerPairs, groupInd, groupSize) {
 			isDimer(primerPair.rPrimer, primerPair.rPrimer);
 		if (isValidPair(primerPair)) {
 			primerPairs.push(primerPair);
+			primerPair.index = count + 1;
 		} else {
 			count -= 1;
 		}

@@ -22,7 +22,7 @@ chrome.runtime.sendMessage({ message: 'get exons' }, function (response) {
 	url = response.url;
 	introns = response.introns;
 	params = response.params;
-	console.log(params);
+	console.log(primerPairs);
 	setTimeout(function () {
 		allPrimerPairs = calculate(exons, params);
 		groupInd = addGroup(primerPairs, allPrimerPairs, groupInd, groupSize);
@@ -46,6 +46,14 @@ function createPage() {
 	let geneLink = $('#gene-link');
 	geneLink.text('(' + gene + ')');
 	geneLink.attr('href', url);
+
+	// Switching tabs
+	$('#primerTabs li a').click(() => {
+		highlightPrimerPair(selectedPrimer, true);
+		$('.primer-text').collapse('hide');
+		$('.fav-text').collapse('hide');
+		$('.copy-btn').attr('hidden', true);
+	});
 
 	// show more button function
 	$('#show-more').click(function () {
@@ -446,21 +454,13 @@ function highlightPrimerPair(primerPair, remove) {
 	}
 }
 
+// Favorite button click function
 function favButton(button, primerPair) {
 	// Add as favorite
 	if (!primerPair.favorite) {
 		button.html('&#9733;');
 		button.addClass('fav-btn-active');
-		let listItem = $(
-			'<li class="list-group-item" id="favoriteItem' +
-				primerPair.id.toString() +
-				'"></li>'
-		);
-		listItem.append(createFavCard(primerPair, button));
-		if ($('#dummy-list-item').attr('hidden') == undefined) {
-			$('#dummy-list-item').attr('hidden', true);
-		}
-		$('#favorites-list').append(listItem);
+		$('#favorites-list').append(createFavCard(primerPair, button));
 		primerPair.favorite = true;
 	}
 	// Remove favorite
@@ -468,7 +468,7 @@ function favButton(button, primerPair) {
 		button.html('&#9734;');
 		button.removeClass('fav-btn-active');
 		let after = false;
-		$('#favorites-list li').each(function (index) {
+		$('#favorites-list div.primer-card').each(function (index) {
 			if (
 				!after &&
 				$(this).attr('id') == 'favoriteItem' + primerPair.id.toString()
@@ -478,48 +478,41 @@ function favButton(button, primerPair) {
 			if (after) {
 				$(this)
 					.find('.btn-link')
-					.text('Favorite ' + (index - 1).toString());
+					.text('Favorite ' + index.toString());
 			}
 		});
 		favInd -= 1;
 		$('#favoriteItem' + primerPair.id.toString()).remove();
-		if ($('#favorites-list li').length == 1) {
-			$('#dummy-list-item').removeAttr('hidden');
-		}
 		primerPair.favorite = false;
 	}
 }
 
 function createFavCard(primerPair, button) {
-	let card = $('<div class="card primer-card"></div>');
+	let card = $(
+		`<div class="card primer-card" id="favoriteItem${primerPair.id}"></div>`
+	);
 	card.append(
 		$(
-			'<div class="card-header""><div class="row">' +
-				'<button class="btn btn-link btn-block text-left mr-auto" type="button">Favorite ' +
-				favInd.toString() +
-				'</button></div></div>'
+			`<div class="card-header"><div class="row"><button class="primer-btn btn btn-link btn-block text-left mr-auto collapsed" type="button" id="headerBtn${primerPair.id}" data-toggle="collapse" data-target="#favoriteText${primerPair.id}" aria-expanded='false' aria-controls='favoriteText${primerPair.id}'>Favorite ${favInd}</button></div></div>`
 		)
 	);
 	favInd += 1;
-	card.find('button').click(function () {
+	card.find('.primer-btn').click(function () {
 		highlightPrimerPair(primerPair, false);
-		$('.accordian .primer-card').each(function (index, element) {
-			if (!$(this).find('.primer-btn').hasClass('collapsed')) {
-				$(this).find('.primer-text').collapse('hide');
-
-				$(this).find('.copy-btn').attr('hidden', true);
+		if (!$('.fav-text').hasClass('collapsing')) {
+			$('.copy-btn-main').attr('hidden', true);
+			if (!$(this).hasClass('collapsed')) {
+				card.find('.copy-btn').attr('hidden', true);
+			} else {
+				card.find('.copy-btn').removeAttr('hidden');
 			}
-		});
-		$('#exon' + (primerPair.exon + 1).toString())[0].scrollIntoView({
-			behavior: 'smooth',
-			block: 'center',
-		});
+		}
 	});
 	let favBtn = $(
 		'<button class="fav-btn fav-btn-active shadow-none">&#9733;</button>'
 	);
 	let copyBtn = $(
-		'<button class="copy-btn shadown-none align-middle" data-toggle="tooltip" data-placement="top" data-trigger="click" title="Copied">' +
+		'<button class="copy-btn shadown-none align-middle" data-toggle="tooltip" data-placement="top" data-trigger="click" title="Copied" hidden>' +
 			'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard align-middle" viewBox="0 0 16 16">' +
 			'<path fill-rule="evenodd" d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>' +
 			'<path fill-rule="evenodd" d="M9.5 1h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>' +
@@ -527,7 +520,11 @@ function createFavCard(primerPair, button) {
 	);
 	card.find('.row').append(copyBtn);
 	card.find('.row').append(favBtn);
-	card.append($('<div class="card-body"></div>'));
+	card.append(
+		$(
+			`<div class="card-body fav-text collapse" id="favoriteText${primerPair.id}"></div>`
+		)
+	);
 	card.find('.card-body').append(primerPairInfo(primerPair));
 	copyBtn.tooltip('enable');
 	copyBtn.click(function () {
@@ -547,7 +544,7 @@ function createFavCard(primerPair, button) {
 		button.html('&#9734;');
 		button.removeClass('fav-btn-active');
 		let after = false;
-		$('#favorites-list li').each(function (index) {
+		$('#favorites-list div.primer-card').each(function (index) {
 			if (
 				!after &&
 				$(this).attr('id') == 'favoriteItem' + primerPair.id.toString()
@@ -557,7 +554,7 @@ function createFavCard(primerPair, button) {
 			if (after) {
 				$(this)
 					.find('.btn-link')
-					.text('Favorite ' + (index - 1).toString());
+					.text('Favorite ' + index.toString());
 			}
 		});
 		favInd -= 1;

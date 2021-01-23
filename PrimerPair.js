@@ -20,6 +20,7 @@ class PrimerPair {
 	constructor(exons, exonInd, fLeft, fRight, rLeft, rRight) {
 		// General info
 		this.id;
+		this.index;
 		this.favorite = false;
 		this.exon = exonInd + 1;
 		//Primers info

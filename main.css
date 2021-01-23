@@ -167,6 +167,10 @@ img {
 
 /* PRIMER RESULTS */
 
+#primerTabs {
+	margin-bottom: 8px;
+}
+
 .results-body .primer-card {
 	margin-bottom: 8px;
 }
