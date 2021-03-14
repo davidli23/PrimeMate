@@ -637,6 +637,14 @@ function primerPairInfo(primerPair) {
 	propForward.append(
 		$("<div class='prop-body'>" + primerPair.fPrimer + '</div>')
 	);
+	propForward.append(
+		$(
+			"<div class='prop-body'>" +
+				'Location: ' +
+				primerPair.startLocation +
+				'</div>'
+		)
+	);
 	body.append(propForward);
 	let propReverse = $('<div></div>');
 	propReverse.append(
@@ -648,6 +656,14 @@ function primerPairInfo(primerPair) {
 	);
 	propReverse.append(
 		$("<div class='prop-body'>" + primerPair.rPrimer + '</div>')
+	);
+	propReverse.append(
+		$(
+			"<div class='prop-body'>" +
+				'Location: ' +
+				primerPair.endLocation +
+				'</div>'
+		)
 	);
 	body.append(propReverse);
 	let propLength = $('<div></div>');

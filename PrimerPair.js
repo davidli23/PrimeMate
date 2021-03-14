@@ -51,7 +51,7 @@ class PrimerPair {
 		this.fHairpin = false;
 		this.rHairpin = false;
 		this.startLocation = this.findStartLocation(exons, exonInd, fLeft);
-		this.endLocation = this.startLocation + this.length;
+		this.endLocation = this.startLocation + this.length - 1;
 		this.tempDiffScore;
 		this.indMeltTempScore;
 		this.indGCContentScore;
@@ -113,7 +113,7 @@ class PrimerPair {
 	findStartLocation(exons, exonInd, fLeft) {
 		let location = 1;
 		for (let i = 0; i < exonInd; i += 1) {
-			location += exons[exonInd].length;
+			location += exons[i].length;
 		}
 		return location + fLeft;
 	}
