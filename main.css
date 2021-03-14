@@ -79,7 +79,7 @@ img {
 
 /* TOP ROW */
 
-.results-body img {
+.results-body img.logo-img {
 	width: 275px;
 	margin: 20px auto;
 }
@@ -177,7 +177,7 @@ img {
 
 .results-body .primer-card .primer-btn {
 	padding: 4px 6px;
-	width: 60%;
+	width: 50%;
 }
 
 .results-body .primer-card .primer-card-body {
@@ -219,6 +219,8 @@ img {
 
 .results-body #exon-table .high_text {
 	background-color: #ffff33;
+	/* background-color: #ffb3ff; */
+	/* background-color: #adebad; */
 }
 
 /* FAVORITES */
@@ -243,7 +245,7 @@ img {
 	font-style: italic;
 }
 
-/* FAVORITE AND COPY BUTTONS */
+/* FAVORITE AND COPY AND HIGHLIGHT BUTTONS */
 
 .fav-btn {
 	font-size: 1.25rem;
@@ -275,4 +277,23 @@ img {
 	border: none;
 	outline: none;
 	background-color: transparent;
+}
+
+.highlight-btn,
+.highlight-btn:focus {
+	font-size: 1.25rem;
+	padding: 0px 12px;
+	padding-bottom: 0px;
+	border: none;
+	outline: none;
+	background-color: transparent;
+}
+
+.highlight-btn-active,
+.highlight-btn-active:focus {
+	background-color: darkcyan;
+}
+
+.highlight-img {
+	width: 16px;
 }

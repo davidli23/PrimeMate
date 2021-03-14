@@ -16,6 +16,9 @@ var groupSize = 5 * numberPrimersDisplayed;
 var groupInd = 0;
 var favInd = 1;
 
+var favHighlightNumber = 3;
+var favHighlighted = [];
+
 chrome.runtime.sendMessage({ message: 'get exons' }, function (response) {
 	exons = response.exons;
 	gene = response.gene;
@@ -89,6 +92,11 @@ function createPage() {
 			$('#exon-table').append(intronRow);
 		}
 	});
+
+	// Initialize highlighted favorites array
+	for (let i = 0; i < favHighlightNumber; i++) {
+		favHighlighted.push(null);
+	}
 
 	// Add primers to display
 	for (
@@ -454,7 +462,12 @@ function highlightPrimerPair(primerPair, remove) {
 	}
 }
 
-// Favorite button click function
+// Highlight primer in exon function
+function updateFavHighlights() {
+	console.log(favHighlighted);
+}
+
+// Favorite button click functionq
 function favButton(button, primerPair) {
 	// Add as favorite
 	if (!primerPair.favorite) {
@@ -498,7 +511,6 @@ function createFavCard(primerPair, button) {
 	);
 	favInd += 1;
 	card.find('.primer-btn').click(function () {
-		highlightPrimerPair(primerPair, false);
 		if (!$('.fav-text').hasClass('collapsing')) {
 			$('.copy-btn-main').attr('hidden', true);
 			if (!$(this).hasClass('collapsed')) {
@@ -518,7 +530,13 @@ function createFavCard(primerPair, button) {
 			'<path fill-rule="evenodd" d="M9.5 1h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>' +
 			'</svg></button>'
 	);
+	let highlightBtn = $(
+		'<button class="highlight-btn shadown-none align-middle" title="Highlight">' +
+			'<img class="highlight-img" src="assets/highlighter.svg" />' +
+			'</button>'
+	);
 	card.find('.row').append(copyBtn);
+	card.find('.row').append(highlightBtn);
 	card.find('.row').append(favBtn);
 	card.append(
 		$(
@@ -563,6 +581,40 @@ function createFavCard(primerPair, button) {
 			$('#dummy-list-item').removeAttr('hidden');
 		}
 		primerPair.favorite = false;
+	});
+	highlightBtn.click(function () {
+		for (let i = 0; i < favHighlightNumber; i++) {
+			// If already highlighted
+			if (
+				favHighlighted[i] !== null &&
+				favHighlighted[i].id === primerPair.id
+			) {
+				favHighlighted[i] = null;
+				$(this).removeClass('highlight-btn-active');
+				updateFavHighlights();
+				return;
+			}
+		}
+		for (let i = 0; i < favHighlightNumber; i++) {
+			if (favHighlighted[i] === null) {
+				favHighlighted[i] = {
+					id: primerPair.id,
+					forward: {
+						exon: primerPair.exon,
+						left: primerPair.fInd,
+						right: primerPair.fInd + primerPair.fLen,
+					},
+					reverse: {
+						exon: primerPair.exon + 1,
+						left: primerPair.rInd,
+						right: primerPair.rInd + primerPair.rLen,
+					},
+				};
+				$(this).addClass('highlight-btn-active');
+				updateFavHighlights();
+				return;
+			}
+		}
 	});
 	return card;
 }

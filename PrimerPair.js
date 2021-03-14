@@ -50,6 +50,8 @@ class PrimerPair {
 		this.dimer = false;
 		this.fHairpin = false;
 		this.rHairpin = false;
+		this.startLocation = this.findStartLocation(exons, exonInd, fLeft);
+		this.endLocation = this.startLocation + this.length;
 		this.tempDiffScore;
 		this.indMeltTempScore;
 		this.indGCContentScore;
@@ -106,6 +108,14 @@ class PrimerPair {
 			820 / (content.A + content.T + content.G + content.C) +
 			16.6 * Math.log10(NaConc)
 		);
+	}
+
+	findStartLocation(exons, exonInd, fLeft) {
+		let location = 1;
+		for (let i = 0; i < exonInd; i += 1) {
+			location += exons[exonInd].length;
+		}
+		return location + fLeft;
 	}
 
 	score() {
